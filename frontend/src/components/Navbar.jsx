@@ -10,7 +10,7 @@ export default function Navbar() {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
-  // ✅ Cierra el dropdown al hacer clic fuera (opcional)
+  //  Cierra el dropdown al hacer clic fuera (opcional)
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -21,7 +21,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ Función que cierra todo al hacer clic en un enlace del menú
+  //  Función que cierra todo al hacer clic en un enlace del menú
   const handleLinkClick = () => {
     setIsDropdownOpen(false);
     setIsMenuOpen(false);
@@ -137,6 +137,18 @@ export default function Navbar() {
                 Ir a votar
               </Link>
             </li>
+
+            {/* 🔹 Enlace Admin (discreto) */}
+            <li>
+              <Link
+                to="/admin/login"
+                onClick={handleLinkClick}
+                className="text-gray-500 hover:text-gray-700 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+                title="Acceso Administrativo"
+              >
+                <Shield className="w-5 h-5" />
+              </Link>
+            </li>
           </ul>
 
           {/* 🔹 Menú móvil */}
@@ -229,6 +241,17 @@ export default function Navbar() {
                   className="block bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium transition-all text-center"
                 >
                   Ir a votar
+                </Link>
+              </li>
+
+              <li className="pt-2 border-t border-gray-200 mt-2">
+                <Link
+                  to="/admin/login"
+                  onClick={handleLinkClick}
+                  className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors py-2"
+                >
+                  <Shield className="w-5 h-5" />
+                  <span>Acceso Administrativo</span>
                 </Link>
               </li>
             </ul>
