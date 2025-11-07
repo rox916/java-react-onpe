@@ -1,0 +1,21 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "admin-lui",
+    "main",
+    "nombre-de-tu-rama",
+    "origin"
+  ],
+  "parent": {
+    "admin-lui": "main",
+    "main": null,
+    "nombre-de-tu-rama": "main",
+    "origin": "main"
+  },
+  "order": [
+    "main",
+    "admin-lui",
+    "nombre-de-tu-rama",
+    "origin"
+  ]
+}
