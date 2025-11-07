@@ -10,6 +10,16 @@ import {
   Vote,
 } from "lucide-react";
 
+/**
+ * AdminLogin.jsx - Pantalla de Acceso al Panel de Administración
+ * 
+ * Vista de autenticación para acceder al panel de administración:
+ * - Formulario de login con usuario y contraseña
+ * - Validación de credenciales
+ * - Manejo de errores y estados de carga
+ * - Redirección al panel principal tras autenticación exitosa
+ * - Las rutas del admin están protegidas con ProtectedRoute.jsx
+ */
 export default function AdminLogin() {
   const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
