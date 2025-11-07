@@ -34,23 +34,23 @@ export default function Configuracion() {
       </div>
 
       {/* 🧩 Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="border-b flex overflow-x-auto">
-            // eslint-disable-next-line no-unused-vars
-          {tabs.map(({ id, label, icon: Icon }) => (
+            {/* eslint-disable-next-line no-unused-vars */}
+            {tabs.map(({ id, label, icon: Icon }) => (
             <button
-              key={id}
-              onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all whitespace-nowrap ${
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all whitespace-nowrap ${
                 activeTab === id
-                  ? "border-b-2 border-[#1A2C56] text-[#1A2C56] bg-gray-50"
-                  : "text-gray-600 hover:text-[#1A2C56] hover:bg-gray-50"
-              }`}
+                    ? "border-b-2 border-[#1A2C56] text-[#1A2C56] bg-gray-50"
+                    : "text-gray-600 hover:text-[#1A2C56] hover:bg-gray-50"
+                }`}
             >
-              <Icon className="w-4 h-4" />
-              {label}
+                <Icon className="w-4 h-4" />
+                {label}
             </button>
-          ))}
+            ))}
         </div>
 
         <div className="p-6">
