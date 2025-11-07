@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import { Search, Upload, Eye, Edit, UserCheck, UserX } from "lucide-react";
+import { ClipboardCheck, Search, Upload, Eye, Edit, UserCheck, UserX } from "lucide-react";
 import PadronSubir from "./PadronSubir";
 import PadronVer from "./PadronVer";
 import PadronEditar from "./PadronEditar";
@@ -62,25 +62,26 @@ export default function PadronElectoral() {
 
   return (
     <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       className="space-y-6"
     >
-      {/* Encabezado */}
+      {/* 🧭 Encabezado estandarizado */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Padrón Electoral</h1>
-          <p className="text-sm text-gray-600">
-            Gestiona y consulta el registro de votantes habilitados.
-          </p>
+        <div className="flex items-center gap-3">
+          <ClipboardCheck className="w-8 h-8 text-blue-600" />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Gestión del Padrón Electoral
+            </h1>
+            <p className="text-sm text-gray-600">
+              Administra, consulta y actualiza el registro de votantes habilitados en el sistema.
+            </p>
+          </div>
         </div>
         <button
           onClick={handleOpenUploadModal}
-          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md"
+          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md"
         >
           <Upload className="w-5 h-5" /> Cargar Padrón
         </button>

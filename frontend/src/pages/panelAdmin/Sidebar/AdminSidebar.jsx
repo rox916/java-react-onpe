@@ -2,7 +2,8 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   BarChart3,      // Dashboard
-  Users,          // Usuarios / Candidatos
+  Users,          // Usuarios
+  UserSquare2,     // Candidatos
   Building2,      // Centros
   Settings,       // Configuración
   FileText,       // Reportes
@@ -24,7 +25,7 @@ const AdminSidebar = () => {
     // 🔑 NUEVO SUBMÓDULO
     { id: "roles", label: "Roles y Permisos", icon: KeyRound, path: "/admin/roles" },
 
-    { id: "candidatos", label: "Candidatos", icon: Users, path: "/admin/candidatos" },
+    { id: "candidatos", label: "Candidatos", icon: UserSquare2, path: "/admin/candidatos" },
     { id: "centros", label: "Centros de Votación", icon: Building2, path: "/admin/centros" },
     { id: "padron-electoral", label: "Padrón Electoral", icon: UserCheck, path: "/admin/padron-electoral" },
     { id: "configuracion", label: "Configuración", icon: Settings, path: "/admin/configuracion" },

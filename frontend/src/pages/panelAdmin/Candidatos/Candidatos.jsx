@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import { Search, Plus, Edit, Trash2, Users } from "lucide-react";
+import { Search, Plus, Edit, Trash2, UserSquare2 } from "lucide-react";
 import CandidatoCrear from "./CandidatoCrear";
 import CandidatoEditar from "./CandidatoEditar";
 import CandidatoEliminar from "./CandidatoEliminar";
@@ -61,7 +61,7 @@ export default function Candidatos() {
       {/* 🧭 Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Users className="w-8 h-8 text-blue-600" />
+          <UserSquare2 className="w-8 h-8 text-blue-600" />
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Gestión de Candidatos</h1>
             <p className="text-sm text-gray-600">Administra la información de los candidatos y sus partidos políticos.</p>

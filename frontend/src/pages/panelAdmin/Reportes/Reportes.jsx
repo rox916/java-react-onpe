@@ -8,6 +8,7 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
+  FileChartLine,
 } from "lucide-react";
 import ReporteGenerar from "./ReporteGenerar";
 
@@ -42,8 +43,7 @@ const initialReports = [
   {
     id: 4,
     nombre: "Reporte de Resultados - Departamento Lima",
-    descripcion:
-      "Acta con los resultados oficiales para el departamento de Lima.",
+    descripcion: "Acta con los resultados oficiales para el departamento de Lima.",
     tipo: "Resultados",
     ambito: "Departamento: Lima",
     estado: "Disponible",
@@ -59,7 +59,6 @@ export default function Reportes() {
     setReports([newReport, ...reports]);
     alert("Reporte en proceso de generación...");
 
-    // Simular proceso asíncrono
     setTimeout(() => {
       setReports((current) =>
         current.map((r) =>
@@ -77,9 +76,7 @@ export default function Reportes() {
   };
 
   const handleDownload = (report, format) => {
-    alert(
-      `Descargando "${report.nombre}" en formato ${format.toUpperCase()}...`
-    );
+    alert(`Descargando "${report.nombre}" en formato ${format.toUpperCase()}...`);
   };
 
   const getStatusIcon = (estado) => {
@@ -94,21 +91,21 @@ export default function Reportes() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-6"
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       {/* 🧭 Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Generación de Reportes Oficiales
-          </h1>
-          <p className="text-sm text-gray-600">
-            Crea y descarga los documentos finales del proceso electoral.
-          </p>
+        <div className="flex items-center gap-3">
+          <FileChartLine className="w-8 h-8 text-blue-600" />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Generación de Reportes Oficiales
+            </h1>
+            <p className="text-sm text-gray-600">
+              Crea y descarga los documentos finales del proceso electoral.
+            </p>
+          </div>
         </div>
+
         <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition-all"
@@ -126,17 +123,21 @@ export default function Reportes() {
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-start gap-4">
+                {/* Ícono negro */}
                 <div className="p-3 bg-gray-100 rounded-lg">
-                  <FileText className="w-6 h-6 text-gray-600" />
+                  <FileText className="w-6 h-6 text-gray-900" />
                 </div>
+
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {r.nombre}
-                  </h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{r.nombre}</h3>
                   <p className="text-sm text-gray-600 mt-1">{r.descripcion}</p>
                   <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-500">
-                    <span>Tipo: <strong>{r.tipo}</strong></span>
-                    <span>Ámbito: <strong>{r.ambito}</strong></span>
+                    <span>
+                      Tipo: <strong>{r.tipo}</strong>
+                    </span>
+                    <span>
+                      Ámbito: <strong>{r.ambito}</strong>
+                    </span>
                     {r.fechaGeneracion && (
                       <span>
                         Generado: <strong>{r.fechaGeneracion}</strong>
@@ -152,9 +153,7 @@ export default function Reportes() {
                   {getStatusIcon(r.estado)}
                   <span
                     className={`text-sm font-semibold ${
-                      r.estado === "Disponible"
-                        ? "text-green-700"
-                        : "text-yellow-700"
+                      r.estado === "Disponible" ? "text-green-700" : "text-yellow-700"
                     }`}
                   >
                     {r.estado}
