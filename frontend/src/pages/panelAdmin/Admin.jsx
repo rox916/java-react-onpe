@@ -13,10 +13,6 @@ import Auditoria from './Auditoria/Auditoria';
 import PadronElectoral from './PadronElectoral/PadronElectoral';
 import Candidatos from './Candidatos/Candidatos';
 import Analisis from "./Analisis/Analisis";
-import CargaDataset from "./Analisis/CargaDataset";
-import LimpiezaDatos from "./Analisis/LimpiezaDatos";
-import EntrenamientoModelo from "./Analisis/EntrenamientoModelo";
-import Prediccion from "./Analisis/Prediccion";
 import RolesyPermisos from "./RolesyPermisos/RolesyPermisos";
 
 
@@ -36,10 +32,6 @@ export default function Admin() {
         <Route path="padron-electoral" element={<PadronElectoral />} />
         <Route path="roles" element={<RolesyPermisos />} />
         <Route path="analisis" element={<Analisis />} />
-        <Route path="analisis/carga" element={<CargaDataset />} />
-        <Route path="analisis/limpieza" element={<LimpiezaDatos />} />
-        <Route path="analisis/entrenamiento" element={<EntrenamientoModelo />} />
-        <Route path="analisis/prediccion" element={<Prediccion />} />
       </Route>
     </Routes>
   );

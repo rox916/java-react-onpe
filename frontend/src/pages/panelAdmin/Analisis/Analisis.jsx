@@ -1,89 +1,181 @@
-import { Link } from "react-router-dom";
-import { Upload, Sparkles, Cpu, LineChart } from "lucide-react";
+// src/pages/panelAdmin/Analisis/AnalisisFlujo.jsx
+
+import { useState } from "react";
+import { Upload, Sparkles, Cpu, CheckCircle } from "lucide-react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
+import MetricsCard from "./components/MetricsCard";
 
 export default function Analisis() {
-  const etapas = [
-    {
-      icon: Upload,
-      titulo: "Cargar Dataset",
-      ruta: "carga",
-      descripcion: "Sube datos electorales en formato CSV o Excel.",
-    },
-    {
-      icon: Sparkles,
-      titulo: "Limpieza de Datos",
-      ruta: "limpieza",
-      descripcion: "Corrige valores nulos o inconsistentes.",
-    },
-    {
-      icon: Cpu,
-      titulo: "Entrenamiento del Modelo",
-      ruta: "entrenamiento",
-      descripcion: "Simula entrenamiento con algoritmos de IA.",
-    },
-    {
-      icon: LineChart,
-      titulo: "Predicciones",
-      ruta: "prediccion",
-      descripcion: "Visualiza proyecciones de resultados electorales.",
-    },
-  ];
+  const [step, setStep] = useState(1);
+  const [fileName, setFileName] = useState("");
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) setFileName(file.name);
+  };
+
+  const handleNext = () => setStep((prev) => Math.min(prev + 1, 3));
+  const handleBack = () => setStep((prev) => Math.max(prev - 1, 1));
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className="p-6"
-    >
-      {/* Encabezado */}
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-[#2B4C7E] mb-2">
-          Análisis de Datos Electorales
-        </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Explora el flujo completo del análisis y predicción de resultados
-          electorales mediante técnicas de ciencia de datos e inteligencia
-          artificial.
-        </p>
-      </div>
+    <div className="p-6 bg-white shadow rounded-xl">
+      {/* 🧭 Header */}
+      <h2 className="text-2xl font-semibold text-[#1A2C56] mb-2">
+        Análisis de Datos Electorales
+      </h2>
+      <p className="text-gray-600 mb-6">
+        Flujo completo: carga, limpieza y entrenamiento del modelo.
+      </p>
 
-      {/* Etapas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {etapas.map((etapa, index) => {
-          const Icon = etapa.icon;
-          return (
-            <motion.div
-              key={index}
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: index * 0.1 }}
+      {/* 🪜 Barra de progreso de pasos */}
+
+      <div className="flex justify-between items-center mb-8">
+        {[
+          { id: 1, icon: Upload, label: "Cargar Dataset" },
+          { id: 2, icon: Sparkles, label: "Limpieza" },
+          { id: 3, icon: Cpu, label: "Entrenamiento" },
+          // eslint-disable-next-line no-unused-vars
+        ].map(({ id, icon: Icon, label }) => (
+          <div
+            key={id}
+            className={`flex flex-col items-center ${
+              step >= id ? "text-[#1A2C56]" : "text-gray-400"
+            }`}
+          >
+            <div
+              className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                step >= id
+                  ? "bg-[#1A2C56] text-white border-[#1A2C56]"
+                  : "border-gray-300 bg-white"
+              }`}
             >
-              <Link
-                to={etapa.ruta}
-                className="group bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col items-center text-center hover:-translate-y-1"
-              >
-                {/* Ícono */}
-                <div className="p-4 rounded-full mb-4 bg-[#2B4C7E]/10 text-[#2B4C7E] shadow-sm">
-                  <Icon className="w-8 h-8" />
-                </div>
-
-                {/* Título */}
-                <h3 className="text-lg font-semibold text-gray-800 group-hover:text-[#2B4C7E] transition-colors">
-                  {etapa.titulo}
-                </h3>
-
-                {/* Descripción */}
-                <p className="text-sm text-gray-500 mt-2 leading-relaxed">
-                  {etapa.descripcion}
-                </p>
-              </Link>
-            </motion.div>
-          );
-        })}
+              {step > id ? (
+                <CheckCircle className="w-5 h-5" />
+              ) : (
+                <Icon className="w-5 h-5" />
+              )}
+            </div>
+            <p className="text-sm mt-2">{label}</p>
+          </div>
+        ))}
       </div>
-    </motion.div>
+
+      {/* 🧩 Contenido dinámico según paso */}
+      <motion.div
+        key={step}
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        {step === 1 && (
+          <div>
+            <h3 className="text-lg font-semibold text-[#1A2C56] mb-4">
+              1️⃣ Carga de Dataset
+            </h3>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center mb-6">
+              <p className="text-gray-500 mb-2">
+                Arrastra tu archivo aquí o selecciona manualmente.
+              </p>
+              <label className="bg-[#1A2C56] hover:bg-[#23396A] text-white px-4 py-2 rounded-lg cursor-pointer">
+                Seleccionar archivo
+                <input
+                  type="file"
+                  accept=".csv, .xlsx"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
+              {fileName && (
+                <p className="mt-3 text-sm text-gray-600">
+                  Archivo cargado: <strong>{fileName}</strong>
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div>
+            <h3 className="text-lg font-semibold text-[#1A2C56] mb-4">
+              2️⃣ Limpieza de Datos
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Selecciona las operaciones que deseas aplicar:
+            </p>
+            <ul className="space-y-3 mb-8">
+              {[
+                "Eliminar filas vacías",
+                "Corregir nombres geográficos",
+                "Eliminar duplicados",
+                "Normalizar variables numéricas",
+              ].map((p, i) => (
+                <li key={i} className="flex items-center gap-3">
+                  <input type="checkbox" className="w-4 h-4 text-[#1A2C56]" />
+                  <span>{p}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div>
+            <h3 className="text-lg font-semibold text-[#1A2C56] mb-4">
+              3️⃣ Entrenamiento del Modelo
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Simulación del proceso de entrenamiento con datos limpios.
+            </p>
+
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
+              <motion.div
+                className="bg-[#1A2C56] h-3 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: "75%" }}
+                transition={{ duration: 1 }}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <MetricsCard title="Accuracy" value="92%" />
+              <MetricsCard title="F1 Score" value="0.88" />
+              <MetricsCard title="Precision" value="89%" />
+              <MetricsCard title="Recall" value="91%" />
+            </div>
+          </div>
+        )}
+      </motion.div>
+
+      {/* 🔘 Controles inferiores */}
+      <div className="flex justify-between mt-8 border-t pt-4">
+        <button
+          onClick={handleBack}
+          disabled={step === 1}
+          className={`px-4 py-2 rounded-lg ${
+            step === 1
+              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+          }`}
+        >
+          ← Atrás
+        </button>
+        {step < 3 ? (
+          <button
+            onClick={handleNext}
+            className="bg-[#1A2C56] hover:bg-[#23396A] text-white px-4 py-2 rounded-lg"
+          >
+            Siguiente →
+          </button>
+        ) : (
+          <a
+            href="/admin/analisis/prediccion"
+            className="bg-[#1A2C56] hover:bg-[#23396A] text-white px-4 py-2 rounded-lg"
+          >
+            Ver Predicciones →
+          </a>
+        )}
+      </div>
+    </div>
   );
 }

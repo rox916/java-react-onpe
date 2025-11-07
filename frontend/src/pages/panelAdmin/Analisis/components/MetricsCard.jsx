@@ -1,32 +1,18 @@
-// src/pages/panelAdmin/Analisis/components/DatasetPreview.jsx
+// src/pages/panelAdmin/Analisis/components/MetricsCard.jsx
 
-const DatasetPreview = () => {
+// eslint-disable-next-line no-unused-vars
+import { motion } from "framer-motion";
+
+export default function MetricsCard({ title, value, icon: Icon }) {
   return (
-    <div>
-      <h3 className="font-semibold text-gray-700 mb-2">Vista previa del dataset</h3>
-      <table className="min-w-full text-sm border border-gray-200">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border px-3 py-2">Departamento</th>
-            <th className="border px-3 py-2">Provincia</th>
-            <th className="border px-3 py-2">Votos</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="border px-3 py-1">Lima</td>
-            <td className="border px-3 py-1">Lima</td>
-            <td className="border px-3 py-1">45200</td>
-          </tr>
-          <tr>
-            <td className="border px-3 py-1">Cusco</td>
-            <td className="border px-3 py-1">Urubamba</td>
-            <td className="border px-3 py-1">18000</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <motion.div
+      whileHover={{ scale: 1.03 }}
+      transition={{ type: "spring", stiffness: 300, damping: 15 }}
+      className="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col items-center justify-center text-center"
+    >
+      {Icon && <Icon className="w-6 h-6 text-[#1A2C56] mb-2" />}
+      <h4 className="text-sm font-medium text-gray-600">{title}</h4>
+      <p className="text-lg font-semibold text-[#1A2C56] mt-1">{value}</p>
+    </motion.div>
   );
-};
-
-export default DatasetPreview; // 👈 ESTE EXPORT ES CLAVE
+}
