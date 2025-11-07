@@ -1,0 +1,190 @@
+import React, { useState, useMemo, useRef } from "react";
+// eslint-disable-next-line no-unused-vars
+import { motion } from "framer-motion";
+import { Search, Upload, Eye, Edit, UserCheck, UserX } from "lucide-react";
+import PadronSubir from "./PadronSubir";
+import PadronVer from "./PadronVer";
+import PadronEditar from "./PadronEditar";
+
+// Datos de ejemplo iniciales
+const initialPadron = [
+  { id: 1, dni: "87654321", nombre: "Ana Gabriela Castillo Garcia", departamento: "Lima", provincia: "Lima", distrito: "San Borja", centroVotacion: "IE 1234 República de Venezuela", mesa: "045", estado: "Votó" },
+  { id: 2, dni: "12345678", nombre: "Carlos Ruiz Mendoza", departamento: "Cusco", provincia: "Cusco", distrito: "Wanchaq", centroVotacion: "Colegio Nacional Nuestra Señora de Guadalupe", mesa: "112", estado: "No Votó" },
+  { id: 3, dni: "87654322", nombre: "Lucía Ramírez Torres", departamento: "Arequipa", provincia: "Arequipa", distrito: "Cercado", centroVotacion: "IE 3050 Ramón Castilla", mesa: "023", estado: "Votó" },
+  { id: 4, dni: "12345679", nombre: "Miguel Torres Vargas", departamento: "Lima", provincia: "Lima", distrito: "San Miguel", centroVotacion: 'Complejo Deportivo "La Videna"', mesa: "201", estado: "Votó" },
+  { id: 5, dni: "45678901", nombre: "Sofia Morales Diaz", departamento: "Piura", provincia: "Piura", distrito: "Catacaos", centroVotacion: "IE 0051 Gran Mariscal Ramón Castilla", mesa: "156", estado: "No Votó" },
+  { id: 6, dni: "98765432", nombre: "Pedro Alvarado Sosa", departamento: "Lima", provincia: "Huaral", distrito: "Huaral", centroVotacion: "IE 2070 José Carlos Mariátegui", mesa: "089", estado: "Votó" },
+  { id: 7, dni: "11223344", nombre: "Patricia Rojas Benavides", departamento: "Junín", provincia: "Huancayo", distrito: "Huancayo", centroVotacion: "IE 3082 Santa Rosa", mesa: "234", estado: "No Votó" },
+];
+
+export default function PadronElectoral() {
+  const [padron, setPadron] = useState(initialPadron);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedVoter, setSelectedVoter] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // Filtro
+  const filteredPadron = useMemo(() => {
+    return padron.filter(
+      (voter) =>
+        voter.dni.includes(searchTerm) ||
+        voter.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        voter.departamento.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        voter.centroVotacion.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [padron, searchTerm]);
+
+  // Controladores de modales
+  const handleOpenUploadModal = () => setIsUploadModalOpen(true);
+  const handleOpenDetailsModal = (voter) => {
+    setSelectedVoter(voter);
+    setIsDetailsModalOpen(true);
+  };
+  const handleOpenEditModal = (voter) => {
+    setSelectedVoter(voter);
+    setIsEditModalOpen(true);
+  };
+  const handleCloseModals = () => {
+    setIsUploadModalOpen(false);
+    setIsDetailsModalOpen(false);
+    setIsEditModalOpen(false);
+    setSelectedVoter(null);
+    if (fileInputRef.current) fileInputRef.current.value = null;
+  };
+
+  const handleSaveStatus = (updatedVoter) => {
+    setPadron(padron.map((v) => (v.id === updatedVoter.id ? updatedVoter : v)));
+    handleCloseModals();
+  };
+
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+      }}
+      className="space-y-6"
+    >
+      {/* Encabezado */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Padrón Electoral</h1>
+          <p className="text-sm text-gray-600">
+            Gestiona y consulta el registro de votantes habilitados.
+          </p>
+        </div>
+        <button
+          onClick={handleOpenUploadModal}
+          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-md"
+        >
+          <Upload className="w-5 h-5" /> Cargar Padrón
+        </button>
+      </div>
+
+      {/* Búsqueda */}
+      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Buscar por DNI, nombre, departamento o centro de votación..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Tabla */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Votante</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ubicación</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Centro / Mesa</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredPadron.map((voter) => (
+                <tr key={voter.id} className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900">{voter.nombre}</div>
+                    <div className="text-sm text-gray-500">DNI: {voter.dni}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {voter.distrito}, {voter.departamento}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div>{voter.centroVotacion}</div>
+                    <div className="text-xs">
+                      Mesa: <strong>{voter.mesa}</strong>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
+                        voter.estado === "Votó"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {voter.estado === "Votó" ? (
+                        <UserCheck className="w-3 h-3" />
+                      ) : (
+                        <UserX className="w-3 h-3" />
+                      )}
+                      {voter.estado}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      onClick={() => handleOpenDetailsModal(voter)}
+                      className="text-gray-400 hover:text-blue-600 mx-1"
+                      title="Ver Detalles"
+                    >
+                      <Eye className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleOpenEditModal(voter)}
+                      className="text-gray-400 hover:text-yellow-600 mx-1"
+                      title="Editar Estado"
+                    >
+                      <Edit className="w-5 h-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Modales */}
+      <PadronSubir
+        isOpen={isUploadModalOpen}
+        onClose={handleCloseModals}
+        fileInputRef={fileInputRef}
+      />
+      <PadronVer
+        isOpen={isDetailsModalOpen}
+        onClose={handleCloseModals}
+        voter={selectedVoter}
+      />
+      <PadronEditar
+        isOpen={isEditModalOpen}
+        onClose={handleCloseModals}
+        voter={selectedVoter}
+        onSave={handleSaveStatus}
+      />
+    </motion.div>
+  );
+}
