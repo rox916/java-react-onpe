@@ -1,29 +1,21 @@
-import { useState, useEffect, useRef } from "react";
+/**
+ * Componente de navegación principal
+ * Barra de navegación responsive con menú móvil
+ * Incluye enlaces a las páginas principales y acceso administrativo
+ */
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, Vote, Shield, ChevronDown } from "lucide-react";
+import { Menu, X, Vote, Shield } from "lucide-react";
 
 export default function Navbar() {
+  // Estado para controlar la visibilidad del menú móvil
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
 
+  // Alternar la visibilidad del menú móvil
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
-  //  Cierra el dropdown al hacer clic fuera (opcional)
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  //  Función que cierra todo al hacer clic en un enlace del menú
+  // Cerrar el menú móvil al hacer clic en un enlace
   const handleLinkClick = () => {
-    setIsDropdownOpen(false);
     setIsMenuOpen(false);
   };
 
@@ -56,55 +48,14 @@ export default function Navbar() {
               </Link>
             </li>
 
-            {/* 🔹 Dropdown */}
-            <li className="relative" ref={dropdownRef}>
-              <button
-                onClick={toggleDropdown}
-                className="font-medium hover:text-blue-700 transition-colors flex items-center gap-1"
+            <li>
+              <Link
+                to="/informacion#voto-digital"
+                className="font-medium hover:text-blue-700 transition-colors relative group"
               >
                 Voto Digital
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-
-              {isDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden z-50">
-                  <div className="p-4 bg-slate-50 border-b border-gray-100">
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-blue-600" />
-                      <span className="font-medium text-slate-900">
-                        Voto Seguro
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-2">
-                    <Link
-                      to="/voto-digital"
-                      onClick={handleLinkClick}
-                      className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded transition-colors"
-                    >
-                      ¿Cómo votar digitalmente?
-                    </Link>
-                    <Link
-                      to="/requisitos"
-                      onClick={handleLinkClick}
-                      className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded transition-colors"
-                    >
-                      Requisitos
-                    </Link>
-                    <Link
-                      to="/seguridad"
-                      onClick={handleLinkClick}
-                      className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded transition-colors"
-                    >
-                      Seguridad y privacidad
-                    </Link>
-                  </div>
-                </div>
-              )}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-700 group-hover:w-full transition-all"></span>
+              </Link>
             </li>
 
             <li>
@@ -175,43 +126,13 @@ export default function Navbar() {
               </li>
 
               <li>
-                <button
-                  onClick={toggleDropdown}
-                  className="w-full text-left font-medium hover:text-blue-700 transition-colors flex items-center justify-between py-2"
+                <Link
+                  to="/informacion#voto-digital"
+                  onClick={handleLinkClick}
+                  className="block font-medium hover:text-blue-700 transition-colors py-2"
                 >
                   Voto Digital
-                  <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      isDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {isDropdownOpen && (
-                  <div className="mt-2 ml-4 space-y-2">
-                    <Link
-                      to="/voto-digital"
-                      onClick={handleLinkClick}
-                      className="block text-gray-600 hover:text-blue-700 transition-colors py-1"
-                    >
-                      ¿Cómo votar digitalmente?
-                    </Link>
-                    <Link
-                      to="/requisitos"
-                      onClick={handleLinkClick}
-                      className="block text-gray-600 hover:text-blue-700 transition-colors py-1"
-                    >
-                      Requisitos
-                    </Link>
-                    <Link
-                      to="/seguridad"
-                      onClick={handleLinkClick}
-                      className="block text-gray-600 hover:text-blue-700 transition-colors py-1"
-                    >
-                      Seguridad y privacidad
-                    </Link>
-                  </div>
-                )}
+                </Link>
               </li>
 
               <li>

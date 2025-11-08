@@ -24,7 +24,7 @@ export default function RolCrear({ isOpen, onClose, onSave }) {
     estado: "Activo",
   });
 
-  // 🧭 Bloquear scroll al abrir modal
+  // Bloquear el scroll del body cuando el modal está abierto
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => (document.body.style.overflow = "");

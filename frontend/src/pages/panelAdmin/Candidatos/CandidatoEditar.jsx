@@ -1,31 +1,36 @@
+/**
+ * Componente modal para editar un candidato existente
+ * Permite modificar los datos del candidato seleccionado
+ */
 import { useEffect, useState } from "react";
 import { X, Save } from "lucide-react";
-// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
+import { FormInput, FormSelect } from "../../../components/shared/FormInput";
 
 export default function CandidatoEditar({ isOpen, onClose, onSave, candidate, partidos, cargos }) {
+  // Estado del formulario inicializado con los datos del candidato
   const [formData, setFormData] = useState(candidate || {});
 
-  // 🧭 Bloquear scroll del body al abrir modal
+  // Bloquear el scroll del body cuando el modal está abierto
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => (document.body.style.overflow = "");
   }, [isOpen]);
 
-  // 🔄 Actualizar datos cuando cambie el candidato
+  // Actualizar el formulario cuando cambie el candidato seleccionado
   useEffect(() => {
     if (candidate) setFormData(candidate);
   }, [candidate]);
 
   if (!isOpen || !candidate) return null;
 
-  // 📝 Manejo de inputs
+  // Manejo de cambios en los campos del formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 💾 Guardar cambios
+  // Guardar los cambios realizados al candidato
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -64,14 +69,15 @@ export default function CandidatoEditar({ isOpen, onClose, onSave, candidate, pa
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-4 text-gray-700">
-          <Input
+          <FormInput
             label="Nombre Completo *"
             name="nombre"
             value={formData.nombre || ""}
             onChange={handleChange}
+            required
           />
 
-          <Input
+          <FormInput
             label="URL de Foto"
             name="foto"
             value={formData.foto || ""}
@@ -79,7 +85,7 @@ export default function CandidatoEditar({ isOpen, onClose, onSave, candidate, pa
             placeholder="https://..."
           />
 
-          <Select
+          <FormSelect
             label="Partido Político"
             name="partidoPolitico"
             value={formData.partidoPolitico || partidos[0]}
@@ -87,14 +93,15 @@ export default function CandidatoEditar({ isOpen, onClose, onSave, candidate, pa
             options={partidos}
           />
 
-          <Input
+          <FormInput
             label="Número de Lista *"
             name="numeroLista"
             value={formData.numeroLista || ""}
             onChange={handleChange}
+            required
           />
 
-          <Select
+          <FormSelect
             label="Cargo"
             name="cargo"
             value={formData.cargo || cargos[0]}
@@ -102,7 +109,7 @@ export default function CandidatoEditar({ isOpen, onClose, onSave, candidate, pa
             options={cargos}
           />
 
-          <Select
+          <FormSelect
             label="Estado"
             name="estado"
             value={formData.estado || "Activo"}
@@ -128,38 +135,6 @@ export default function CandidatoEditar({ isOpen, onClose, onSave, candidate, pa
           </div>
         </form>
       </motion.div>
-    </div>
-  );
-}
-
-/* 🧩 Componentes reutilizables */
-function Input({ label, ...props }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      <input
-        {...props}
-        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        required
-      />
-    </div>
-  );
-}
-
-function Select({ label, options, ...props }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      <select
-        {...props}
-        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      >
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

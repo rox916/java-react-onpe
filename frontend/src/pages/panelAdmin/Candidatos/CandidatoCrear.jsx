@@ -1,9 +1,14 @@
+/**
+ * Componente modal para crear un nuevo candidato
+ * Permite ingresar todos los datos necesarios del candidato y guardarlo en el sistema
+ */
 import { useEffect, useState } from "react";
 import { X, PlusCircle } from "lucide-react";
-// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
+import { FormInput, FormSelect } from "../../../components/shared/FormInput";
 
 export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, cargos }) {
+  // Estado del formulario con valores iniciales
   const [formData, setFormData] = useState({
     nombre: "",
     partidoPolitico: partidos[0],
@@ -13,7 +18,7 @@ export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, carg
     estado: "Activo",
   });
 
-  // 🧭 Bloquear scroll al abrir modal
+  // Bloquear el scroll del body cuando el modal está abierto
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => (document.body.style.overflow = "");
@@ -21,13 +26,13 @@ export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, carg
 
   if (!isOpen) return null;
 
-  // 📝 Manejo de cambios
+  // Manejo de cambios en los campos del formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 💾 Guardar nuevo candidato
+  // Guardar el nuevo candidato y cerrar el modal
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -66,14 +71,15 @@ export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, carg
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-4 text-gray-700">
-          <Input
+          <FormInput
             label="Nombre Completo *"
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
+            required
           />
 
-          <Input
+          <FormInput
             label="URL de Foto"
             name="foto"
             value={formData.foto}
@@ -81,7 +87,7 @@ export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, carg
             placeholder="https://..."
           />
 
-          <Select
+          <FormSelect
             label="Partido Político"
             name="partidoPolitico"
             value={formData.partidoPolitico}
@@ -89,14 +95,15 @@ export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, carg
             options={partidos}
           />
 
-          <Input
+          <FormInput
             label="Número de Lista *"
             name="numeroLista"
             value={formData.numeroLista}
             onChange={handleChange}
+            required
           />
 
-          <Select
+          <FormSelect
             label="Cargo"
             name="cargo"
             value={formData.cargo}
@@ -104,7 +111,7 @@ export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, carg
             options={cargos}
           />
 
-          <Select
+          <FormSelect
             label="Estado"
             name="estado"
             value={formData.estado}
@@ -130,38 +137,6 @@ export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, carg
           </div>
         </form>
       </motion.div>
-    </div>
-  );
-}
-
-/* 🧩 Componentes reutilizables */
-function Input({ label, ...props }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      <input
-        {...props}
-        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        required
-      />
-    </div>
-  );
-}
-
-function Select({ label, options, ...props }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      <select
-        {...props}
-        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      >
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

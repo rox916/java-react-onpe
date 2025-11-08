@@ -4,7 +4,7 @@ import { Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function RolEliminar({ isOpen, onClose, onConfirm, role }) {
-  // 🧭 Bloquear scroll del body al abrir modal
+  // Bloquear el scroll del body cuando el modal está abierto
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => (document.body.style.overflow = "");

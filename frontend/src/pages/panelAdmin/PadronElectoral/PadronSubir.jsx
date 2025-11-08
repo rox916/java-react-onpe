@@ -7,7 +7,7 @@ export default function PadronSubir({ isOpen, onClose, fileInputRef }) {
   const [uploadStatus, setUploadStatus] = useState("idle"); // idle, uploading, success, error
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  // 🧭 Bloquear scroll al abrir modal
+  // Bloquear el scroll del body cuando el modal está abierto
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";

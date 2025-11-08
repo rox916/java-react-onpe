@@ -5,8 +5,9 @@ import { Search, Plus, Edit, Trash2, Building2, MapPin, User } from "lucide-reac
 import CentroCrear from "./CentroCrear";
 import CentroEditar from "./CentroEditar";
 import CentroEliminar from "./CentroEliminar";
+import { DEPARTAMENTOS_PERU } from "../../../constants/electoralConstants";
 
-// 🗳️ Datos iniciales simulados
+// Datos iniciales de centros de votación (datos de ejemplo para desarrollo)
 const initialCentros = [
   { id: 1, nombre: "IE 1234 República de Venezuela", direccion: "Av. República de Venezuela 1455", departamento: "Lima", provincia: "Lima", distrito: "Lima", responsable: "Carlos Mendoza", mesasAsignadas: 15, estado: "Activo" },
   { id: 2, nombre: "Colegio Nacional Nuestra Señora de Guadalupe", direccion: "Av. Alfonso Ugarte 865", departamento: "Lima", provincia: "Lima", distrito: "Lima", responsable: "Ana García", mesasAsignadas: 20, estado: "Activo" },
@@ -15,8 +16,7 @@ const initialCentros = [
   { id: 5, nombre: "IE 0051 Gran Mariscal Ramón Castilla", direccion: "Jr. Cusco 350", departamento: "Cusco", provincia: "Cusco", distrito: "Cusco", responsable: "Sofia Morales", mesasAsignadas: 18, estado: "Inactivo" },
 ];
 
-// 📍 Departamentos simulados
-const departamentosPeru = ["Lima", "Cusco", "Arequipa", "La Libertad", "Piura", "Puno", "Junín", "Ancash", "Loreto"];
+const departamentosPeru = DEPARTAMENTOS_PERU;
 
 export default function Centros() {
   const [centros, setCentros] = useState(initialCentros);
@@ -33,7 +33,7 @@ export default function Centros() {
     )
   );
 
-  // 🧩 CRUD Handlers
+  // Funciones CRUD para gestionar centros de votación
   const handleCreate = (data) => {
     setCentros([...centros, { ...data, id: Date.now() }]);
     setModalCreate(false);

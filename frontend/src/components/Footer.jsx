@@ -1,4 +1,4 @@
-import { Mail, MapPin, Globe, Facebook, Twitter, Linkedin } from "lucide-react";
+import { Mail, MapPin, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Footer() {
@@ -26,7 +26,7 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link to="/voto-digital" className="hover:text-white transition">
+              <Link to="/informacion#voto-digital" className="hover:text-white transition">
                 Voto Digital
               </Link>
             </li>
@@ -67,30 +67,6 @@ export default function Footer() {
             © {new Date().getFullYear()} Sistema Electoral Digital Nacional. Todos los derechos reservados.
           </p>
 
-          {/* Íconos sociales */}
-          <div className="flex gap-4 mt-4 md:mt-0">
-            <a
-              href="#"
-              className="hover:text-white transition"
-              aria-label="Facebook"
-            >
-              <Facebook size={18} />
-            </a>
-            <a
-              href="#"
-              className="hover:text-white transition"
-              aria-label="Twitter"
-            >
-              <Twitter size={18} />
-            </a>
-            <a
-              href="#"
-              className="hover:text-white transition"
-              aria-label="LinkedIn"
-            >
-              <Linkedin size={18} />
-            </a>
-          </div>
         </div>
       </div>
     </footer>

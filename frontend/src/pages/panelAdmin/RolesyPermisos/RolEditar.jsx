@@ -19,7 +19,7 @@ const allPermisos = [
 export default function RolEditar({ isOpen, onClose, onSave, role }) {
   const [formData, setFormData] = useState(role || {});
 
-  // 🧭 Bloquear scroll del body al abrir modal
+  // Bloquear el scroll del body cuando el modal está abierto
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => (document.body.style.overflow = "");

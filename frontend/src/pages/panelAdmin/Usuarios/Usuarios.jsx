@@ -5,9 +5,10 @@ import { Search, Plus, Edit, Trash2, UserCheck, UserX, Users } from "lucide-reac
 import UsuarioCrear from "./UsuarioCrear";
 import UsuarioEditar from "./UsuarioEditar";
 import UsuarioEliminar from "./UsuarioEliminar";
+import { ROLES_USUARIO, DEPARTAMENTOS_PERU } from "../../../constants/electoralConstants";
 
-const roles = ["Super Admin", "Admin Regional", "Presidente de Mesa", "Soporte Técnico"];
-const departamentos = ["Lima", "Cusco", "Arequipa", "Loreto", "Piura", "La Libertad", "Puno", "Junín", "Ancash"];
+const roles = ROLES_USUARIO;
+const departamentos = DEPARTAMENTOS_PERU;
 
 export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([
@@ -80,75 +81,86 @@ export default function Usuarios() {
         </div>
       </div>
 
-      {/* 🧾 Tabla de usuarios */}
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Departamento</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filtered.map((u) => (
-              <tr key={u.id} className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4">
-                  <div>
-                    <p className="font-medium text-gray-900">{u.nombre}</p>
-                    <p className="text-sm text-gray-500">{u.email}</p>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                    {u.rol}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm">{u.departamento}</td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full ${
-                      u.estado === "Activo"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {u.estado === "Activo" ? (
-                      <UserCheck className="w-3 h-3" />
-                    ) : (
-                      <UserX className="w-3 h-3" />
-                    )}
-                    {u.estado}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={() => {
-                      setSelectedUser(u);
-                      setModalEdit(true);
-                    }}
-                    className="text-gray-400 hover:text-green-600 mx-1"
-                    title="Editar"
-                  >
-                    <Edit className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedUser(u);
-                      setModalDelete(true);
-                    }}
-                    className="text-gray-400 hover:text-red-600 mx-1"
-                    title="Eliminar"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </td>
+      {/* 🧾 Tabla de usuarios con diseño mejorado */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Usuario</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Rol</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Departamento</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Estado</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {filtered.map((u) => (
+                <tr key={u.id} className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 group">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg">
+                        <Users className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">{u.nombre}</p>
+                        <p className="text-sm text-gray-500">{u.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-lg bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-200">
+                      {u.rol}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-sm font-medium text-gray-700">{u.departamento}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border ${
+                        u.estado === "Activo"
+                          ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-200"
+                          : "bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border-red-200"
+                      }`}
+                    >
+                      {u.estado === "Activo" ? (
+                        <UserCheck className="w-3.5 h-3.5" />
+                      ) : (
+                        <UserX className="w-3.5 h-3.5" />
+                      )}
+                      {u.estado}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => {
+                          setSelectedUser(u);
+                          setModalEdit(true);
+                        }}
+                        className="p-2 text-gray-400 hover:text-white hover:bg-green-500 rounded-lg transition-all duration-200 hover:scale-110"
+                        title="Editar"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedUser(u);
+                          setModalDelete(true);
+                        }}
+                        className="p-2 text-gray-400 hover:text-white hover:bg-red-500 rounded-lg transition-all duration-200 hover:scale-110"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* 🧩 Modales */}

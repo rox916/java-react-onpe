@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { X, Download } from "lucide-react";
 
-const tiposReporte = ["Resultados", "Participación", "Auditoría", "Padrón Electoral"];
-const ambitosReporte = ["Nacional", "Departamento: Lima", "Departamento: Cusco", "Sistema"];
+import { TIPOS_REPORTE, AMBITOS_REPORTE } from "../../../constants/electoralConstants";
+
+const tiposReporte = TIPOS_REPORTE;
+const ambitosReporte = AMBITOS_REPORTE;
 
 export default function ReporteGenerar({ isOpen, onClose, onGenerate }) {
   const [formData, setFormData] = useState({

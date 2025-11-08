@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 export default function PadronEditar({ isOpen, onClose, voter, onSave }) {
   const [estado, setEstado] = useState(voter?.estado || "No Votó");
 
-  // 🧭 Bloquear scroll al abrir modal
+  // Bloquear el scroll del body cuando el modal está abierto
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";

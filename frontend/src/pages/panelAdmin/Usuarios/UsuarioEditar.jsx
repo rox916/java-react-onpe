@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 export default function UsuarioEditar({ isOpen, onClose, onSave, user, roles, departamentos }) {
   const [formData, setFormData] = useState(user || {});
 
-  // 🧭 Bloquear scroll del body al abrir modal
+  // Bloquear el scroll del body cuando el modal está abierto
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";

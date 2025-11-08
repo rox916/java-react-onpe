@@ -1,7 +1,11 @@
-import { useState } from "react";
+/**
+ * Página principal de votación digital
+ * Permite a los usuarios ejercer su derecho al voto de forma digital
+ * Incluye verificación de DNI, captcha, selección de candidatos y confirmación
+ */
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search,
   Vote,
   Shield,
   CheckCircle2,
@@ -15,122 +19,9 @@ import {
   Globe,
   Building2,
 } from "lucide-react";
+import { getCandidatosParaVotacion } from "../services/candidatosService";
 
-// Datos de ejemplo - en producción vendrían de una API
-const candidatosData = {
-  presidente: [
-    {
-      id: 1,
-      nombre: "María González Pérez",
-      partido: "Fuerza Democrática",
-      numero: "1",
-      vicepresidentes: ["Juan Pérez", "Carmen López"],
-      propuestas: [
-        "Educación gratuita y de calidad",
-        "Mejora del sistema de salud pública",
-        "Fortalecimiento de la economía",
-      ],
-    },
-    {
-      id: 2,
-      nombre: "Carlos Ramírez Torres",
-      partido: "Alianza Nacional",
-      numero: "2",
-      vicepresidentes: ["Luis García", "María Rodríguez"],
-      propuestas: [
-        "Seguridad ciudadana integral",
-        "Desarrollo de infraestructura",
-        "Apoyo a pequeñas empresas",
-      ],
-    },
-    {
-      id: 3,
-      nombre: "Ana Martínez Silva",
-      partido: "Unidad Popular",
-      numero: "3",
-      vicepresidentes: ["Pedro Sánchez", "Laura Fernández"],
-      propuestas: [
-        "Protección del medio ambiente",
-        "Igualdad de género",
-        "Tecnología e innovación",
-      ],
-    },
-  ],
-  congresistas: [
-    {
-      id: 101,
-      nombre: "Roberto Mendoza",
-      partido: "Fuerza Democrática",
-      numero: "1",
-      distrito: "Lima",
-      propuestas: [
-        "Ley de transparencia gubernamental",
-        "Reforma del sistema judicial",
-        "Apoyo a la educación técnica",
-      ],
-    },
-    {
-      id: 102,
-      nombre: "Patricia Vargas",
-      partido: "Alianza Nacional",
-      numero: "2",
-      distrito: "Lima",
-      propuestas: [
-        "Seguridad en barrios",
-        "Mejora de servicios públicos",
-        "Fomento al emprendimiento",
-      ],
-    },
-    {
-      id: 103,
-      nombre: "Miguel Torres",
-      partido: "Unidad Popular",
-      numero: "3",
-      distrito: "Lima",
-      propuestas: [
-        "Protección ambiental",
-        "Derechos laborales",
-        "Inclusión social",
-      ],
-    },
-  ],
-  parlamentoAndino: [
-    {
-      id: 201,
-      nombre: "Sofía Ramírez",
-      partido: "Fuerza Democrática",
-      numero: "1",
-      propuestas: [
-        "Integración regional",
-        "Comercio justo",
-        "Cooperación cultural",
-      ],
-    },
-    {
-      id: 202,
-      nombre: "Diego Morales",
-      partido: "Alianza Nacional",
-      numero: "2",
-      propuestas: [
-        "Seguridad fronteriza",
-        "Desarrollo económico conjunto",
-        "Turismo regional",
-      ],
-    },
-    {
-      id: 203,
-      nombre: "Elena Castro",
-      partido: "Unidad Popular",
-      numero: "3",
-      propuestas: [
-        "Sostenibilidad ambiental",
-        "Derechos humanos",
-        "Paz regional",
-      ],
-    },
-  ],
-};
-
+// Categorías de votación disponibles en el proceso electoral
 const categoriasVotacion = [
   {
     id: "presidente",
@@ -150,8 +41,8 @@ const categoriasVotacion = [
   },
   {
     id: "parlamentoAndino",
-    titulo: "Representantes",
-    subtitulo: "al Parlamento Andino",
+    titulo: "Parlamento Andino",
+    subtitulo: "Representantes Regionales",
     icono: Globe,
     color: "from-purple-500 to-purple-600",
     descripcion: "Elige a tus representantes regionales",
@@ -159,13 +50,64 @@ const categoriasVotacion = [
 ];
 
 export default function Votar() {
-  const [paso, setPaso] = useState(1); // 1: Verificación, 2: Selección de categoría, 3: Candidatos, 4: Confirmación, 5: Éxito
+  // Estados del proceso de votación
+  // paso: controla el paso actual del proceso (1: Verificación, 2: Selección de categoría, 3: Candidatos, 4: Confirmación, 5: Éxito)
+  const [paso, setPaso] = useState(1);
   const [dni, setDni] = useState("");
   const [dniVerificado, setDniVerificado] = useState(false);
   const [categoriaActual, setCategoriaActual] = useState(null);
   const [candidatoSeleccionado, setCandidatoSeleccionado] = useState(null);
   const [votosRealizados, setVotosRealizados] = useState({});
   const [error, setError] = useState("");
+  const [captchaCode, setCaptchaCode] = useState("");
+  const [captchaInput, setCaptchaInput] = useState("");
+  const [candidatosData, setCandidatosData] = useState({
+    presidente: [],
+    congresistas: [],
+    parlamentoAndino: [],
+  });
+
+  // Cargar candidatos del servicio compartido y actualizar cuando cambien
+  useEffect(() => {
+    const cargarCandidatos = () => {
+      const datos = getCandidatosParaVotacion();
+      setCandidatosData(datos);
+    };
+    
+    cargarCandidatos();
+    
+    // Escuchar cambios en localStorage (cuando se actualicen en admin)
+    const handleStorageChange = (e) => {
+      if (e.key === 'candidatos_electorales' || !e.key) {
+        cargarCandidatos();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // También verificar periódicamente (para cambios en la misma pestaña)
+    const interval = setInterval(cargarCandidatos, 2000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
+  /**
+   * Genera un código captcha aleatorio de 4 caracteres
+   * Usa caracteres alfanuméricos excluyendo caracteres confusos (0, O, I, 1)
+   * Se genera automáticamente cuando el DNI tiene 8 dígitos
+   */
+  const generateCaptcha = () => {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
+    for (let i = 0; i < 4; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setCaptchaCode(code);
+    setCaptchaInput("");
+  };
 
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -175,7 +117,13 @@ export default function Votar() {
   const verificarDNI = () => {
     setError("");
     if (!dni || dni.length < 8) {
-      setError("Por favor, ingresa un DNI válido (8 dígitos)");
+      setError("Por favor, ingrese un DNI válido (8 dígitos)");
+      return;
+    }
+    
+    if (!captchaInput || captchaInput.toUpperCase() !== captchaCode) {
+      setError("El código de verificación no coincide. Por favor, intente nuevamente.");
+      generateCaptcha();
       return;
     }
 
@@ -233,7 +181,9 @@ export default function Votar() {
 
   const obtenerCandidatos = () => {
     if (!categoriaActual) return [];
-    return candidatosData[categoriaActual.id] || [];
+    // Mapear el id de categoría al nombre correcto en candidatosData
+    const categoriaKey = categoriaActual.id === "parlamentoAndino" ? "parlamentoAndino" : categoriaActual.id;
+    return candidatosData[categoriaKey] || [];
   };
 
   const categoriasPendientes = categoriasVotacion.filter(
@@ -261,7 +211,7 @@ export default function Votar() {
           </p>
         </motion.div>
 
-        {/* Indicador de progreso */}
+        {/* Indicador de progreso mejorado */}
         {paso > 1 && paso < 5 && (
           <motion.div
             initial="hidden"
@@ -269,30 +219,65 @@ export default function Votar() {
             variants={fadeUp}
             className="mb-8"
           >
-            <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-gray-700">
-                  Progreso de votación
-                </span>
-                <span className="text-sm text-gray-600">
-                  {Object.keys(votosRealizados).length} de{" "}
-                  {categoriasVotacion.length} votos completados
-                </span>
+            <div className="bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-xl p-6 border-2 border-gray-100">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <span className="text-lg font-bold text-gray-900 block">
+                      Progreso de Votación
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {Object.keys(votosRealizados).length} de {categoriasVotacion.length} categorías completadas
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-[#2563EB]">
+                    {Math.round((Object.keys(votosRealizados).length / categoriasVotacion.length) * 100)}%
+                  </div>
+                  <div className="text-xs text-gray-500">Completado</div>
+                </div>
               </div>
-              <div className="flex gap-2">
-                {categoriasVotacion.map((cat) => {
-                  const Icono = cat.icono;
-                  const votado = votosRealizados[cat.id];
-                  return (
-                    <div
-                      key={cat.id}
-                      className={`flex-1 h-2 rounded-full transition-all ${
-                        votado ? "bg-green-500" : "bg-gray-200"
-                      }`}
-                      title={cat.titulo}
-                    />
-                  );
-                })}
+              
+              {/* Barra de progreso mejorada */}
+              <div className="relative">
+                <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(Object.keys(votosRealizados).length / categoriasVotacion.length) * 100}%` }}
+                    transition={{ duration: 0.5 }}
+                    className="h-full bg-gradient-to-r from-green-400 via-green-500 to-emerald-600 rounded-full shadow-lg"
+                  />
+                </div>
+                
+                {/* Indicadores de categorías */}
+                <div className="flex justify-between mt-4 gap-2">
+                  {categoriasVotacion.map((cat) => {
+                    const Icono = cat.icono;
+                    const votado = votosRealizados[cat.id];
+                    return (
+                      <div
+                        key={cat.id}
+                        className="flex-1 text-center"
+                        title={cat.titulo}
+                      >
+                        <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center mb-2 transition-all ${
+                          votado 
+                            ? "bg-gradient-to-br from-green-400 to-emerald-600 shadow-lg scale-110" 
+                            : "bg-gray-200"
+                        }`}>
+                          <Icono className={`w-5 h-5 ${votado ? "text-white" : "text-gray-400"}`} />
+                        </div>
+                        <div className={`text-xs font-medium ${votado ? "text-green-600" : "text-gray-400"}`}>
+                          {votado ? "✓" : "○"}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -300,7 +285,7 @@ export default function Votar() {
 
         {/* Contenido principal */}
         <AnimatePresence mode="wait">
-          {/* Paso 1: Verificación de DNI */}
+          {/* Paso 1: Verificación de DNI - Estilo ONPE */}
           {paso === 1 && (
             <motion.div
               key="paso1"
@@ -308,76 +293,169 @@ export default function Votar() {
               animate="visible"
               exit={{ opacity: 0, x: -20 }}
               variants={fadeUp}
-              className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100"
+              className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden"
             >
-              <div className="text-center mb-6">
-                <div className="bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <UserCheck className="w-10 h-10 text-[#2563EB]" />
+              {/* Header estilo ONPE */}
+              <div className="bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] text-white p-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                    <Vote className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">OFICINA NACIONAL DE PROCESOS ELECTORALES</h2>
+                    <p className="text-sm text-blue-100">Sistema Electoral Digital Nacional</p>
+                  </div>
                 </div>
-                <h2 className="text-2xl font-bold text-[#1E3A8A] mb-2">
-                  Verificación de Identidad
-                </h2>
-                <p className="text-gray-600">
-                  Ingresa tu número de DNI para verificar tu identidad y continuar
-                  con el proceso de votación
-                </p>
               </div>
 
-              <div className="max-w-md mx-auto">
-                <div className="relative mb-4">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    value={dni}
-                    onChange={(e) => {
-                      setDni(e.target.value.replace(/\D/g, "").slice(0, 8));
-                      setError("");
-                    }}
-                    placeholder="Ingresa tu DNI (8 dígitos)"
-                    className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-transparent outline-none text-lg"
-                    onKeyPress={(e) => e.key === "Enter" && verificarDNI()}
-                  />
+              {/* Contenido del formulario */}
+              <div className="p-8">
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-[#1E3A8A] mb-2">
+                    CONSULTE SU IDENTIDAD PARA VOTAR
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    Ingrese su Documento Nacional de Identidad (DNI) para verificar su identidad y continuar con el proceso de votación
+                  </p>
                 </div>
 
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-lg mb-4"
-                  >
-                    <AlertCircle className="w-5 h-5" />
-                    <span>{error}</span>
-                  </motion.div>
-                )}
+                {/* Formulario estilo ONPE */}
+                <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
+                  <div className="space-y-6">
+                    {/* Campo DNI */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <span className="text-[#1E3A8A]">&gt;</span>
+                        Ingrese su DNI:
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={dni}
+                          onChange={(e) => {
+                            const newDni = e.target.value.replace(/\D/g, "").slice(0, 8);
+                            setDni(newDni);
+                            setError("");
+                            
+                            // Generar captcha automáticamente cuando el DNI tenga 8 dígitos
+                            if (newDni.length === 8) {
+                              generateCaptcha();
+                            } else {
+                              // Limpiar captcha si el DNI tiene menos de 8 dígitos
+                              setCaptchaCode("");
+                              setCaptchaInput("");
+                            }
+                          }}
+                          placeholder="Ejemplo: 12345678"
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] outline-none text-lg font-medium bg-white"
+                          onKeyPress={(e) => e.key === "Enter" && verificarDNI()}
+                          maxLength={8}
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <UserCheck className="w-5 h-5 text-gray-400" />
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2 ml-6">
+                        Debe contener 8 dígitos numéricos
+                      </p>
+                    </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                  <div className="flex items-start gap-3">
-                    <Shield className="w-5 h-5 text-[#2563EB] mt-0.5" />
-                    <div className="text-sm text-gray-700">
-                      <p className="font-semibold text-[#1E3A8A] mb-1">
-                        Tu información está protegida
-                      </p>
-                      <p>
-                        Utilizamos encriptación de extremo a extremo para proteger
-                        tus datos personales durante todo el proceso.
-                      </p>
+                    {/* Campo Captcha - Solo se muestra cuando hay código generado */}
+                    {captchaCode && (
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                          <span className="text-[#1E3A8A]">&gt;</span>
+                          Ingrese el código de verificación:
+                        </label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="text"
+                            value={captchaInput}
+                            onChange={(e) => {
+                              setCaptchaInput(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""));
+                              setError("");
+                            }}
+                            placeholder="Código de la imagen"
+                            className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] outline-none text-lg font-bold bg-white uppercase tracking-widest"
+                            maxLength={4}
+                            onKeyPress={(e) => e.key === "Enter" && verificarDNI()}
+                          />
+                          {/* Captcha visual */}
+                          <div className="relative bg-white border-2 border-gray-300 rounded-lg px-4 py-3 flex items-center justify-center min-w-[120px] h-[52px] overflow-hidden">
+                            <span className="text-2xl font-bold text-gray-800 tracking-wider relative z-10">
+                              {captchaCode}
+                            </span>
+                            {/* Línea diagonal decorativa */}
+                            <div className="absolute inset-0 pointer-events-none">
+                              <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-400 transform rotate-12"></div>
+                              <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-400 transform -rotate-12"></div>
+                            </div>
+                            {/* Ruido de fondo */}
+                            <div className="absolute inset-0 opacity-10">
+                              {[...Array(20)].map((_, i) => (
+                                <div
+                                  key={i}
+                                  className="absolute w-1 h-1 bg-gray-600 rounded-full"
+                                  style={{
+                                    left: `${Math.random() * 100}%`,
+                                    top: `${Math.random() * 100}%`,
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2 ml-6">
+                          Ingrese los caracteres que aparecen en la imagen
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Mensaje de error */}
+                    {error && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-2 text-red-700 bg-red-50 border-2 border-red-200 p-4 rounded-lg"
+                      >
+                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                        <span className="font-medium">{error}</span>
+                      </motion.div>
+                    )}
+
+                    {/* Botón de consulta */}
+                    <div className="pt-4">
+                      <button
+                        onClick={verificarDNI}
+                        disabled={!dni || dni.length < 8 || !captchaCode || !captchaInput || captchaInput.length < 4}
+                        className="w-full bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] hover:from-[#1E40AF] hover:to-[#2563EB] text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl flex items-center justify-center gap-2 uppercase tracking-wide"
+                      >
+                        <Shield className="w-5 h-5" />
+                        CONSULTAR
+                      </button>
                     </div>
                   </div>
                 </div>
 
-                <button
-                  onClick={verificarDNI}
-                  disabled={!dni || dni.length < 8}
-                  className="w-full bg-[#2563EB] hover:bg-[#1E40AF] text-white py-4 rounded-lg font-semibold text-lg transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
-                >
-                  Verificar DNI
-                  <ArrowRight className="w-5 h-5" />
-                </button>
+                {/* Información de seguridad */}
+                <div className="mt-6 bg-blue-50 border-l-4 border-[#2563EB] rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 text-[#2563EB] mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-gray-700">
+                      <p className="font-semibold text-[#1E3A8A] mb-1">
+                        Su información está protegida
+                      </p>
+                      <p>
+                        Utilizamos encriptación de extremo a extremo para proteger sus datos personales durante todo el proceso electoral.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}
 
-          {/* Paso 2: Selección de categoría */}
+          {/* Paso 2: Selección de categoría - Diseño Mejorado */}
           {paso === 2 && (
             <motion.div
               key="paso2"
@@ -385,85 +463,134 @@ export default function Votar() {
               animate="visible"
               exit={{ opacity: 0, x: -20 }}
               variants={fadeUp}
-              className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100"
+              className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden"
             >
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-[#1E3A8A] mb-2">
-                  Selecciona la categoría para votar
-                </h2>
-                <p className="text-gray-600">
-                  Elige una de las categorías de las Elecciones Generales 2026
-                </p>
+              {/* Header con gradiente */}
+              <div className="bg-gradient-to-r from-[#1E3A8A] via-[#2563EB] to-[#1E40AF] text-white p-8">
+                <div className="text-center">
+                  <div className="inline-block p-3 bg-white/20 rounded-2xl backdrop-blur-sm mb-4">
+                    <Vote className="w-8 h-8" />
+                  </div>
+                  <h2 className="text-3xl font-bold mb-3">
+                    Selecciona la Categoría para Votar
+                  </h2>
+                  <p className="text-blue-100 text-lg">
+                    Elige una de las categorías de las Elecciones Generales 2026
+                  </p>
+                </div>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-6 mb-6">
-                {categoriasVotacion.map((categoria) => {
-                  const Icono = categoria.icono;
-                  const votado = votosRealizados[categoria.id];
-                  const esPendiente = !votado;
+              {/* Contenido */}
+              <div className="p-8">
+                <div className="grid md:grid-cols-3 gap-8 mb-8">
+                  {categoriasVotacion.map((categoria, index) => {
+                    const Icono = categoria.icono;
+                    const votado = votosRealizados[categoria.id];
+                    const esPendiente = !votado;
 
-                  return (
-                    <motion.div
-                      key={categoria.id}
-                      whileHover={esPendiente ? { scale: 1.02 } : {}}
-                      whileTap={esPendiente ? { scale: 0.98 } : {}}
-                      onClick={() => esPendiente && seleccionarCategoria(categoria)}
-                      className={`border-2 rounded-xl p-6 cursor-pointer transition-all ${
-                        esPendiente
-                          ? "border-gray-200 hover:border-[#2563EB] hover:shadow-lg bg-gradient-to-br from-white to-gray-50"
-                          : "border-green-300 bg-green-50 opacity-75 cursor-not-allowed"
-                      }`}
-                    >
-                      <div
-                        className={`w-16 h-16 rounded-full bg-gradient-to-br ${categoria.color} flex items-center justify-center mx-auto mb-4`}
+                    return (
+                      <motion.div
+                        key={categoria.id}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        whileHover={esPendiente ? { scale: 1.05, y: -5 } : {}}
+                        whileTap={esPendiente ? { scale: 0.98 } : {}}
+                        onClick={() => esPendiente && seleccionarCategoria(categoria)}
+                        className={`group relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-300 ${
+                          esPendiente
+                            ? "bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 hover:border-[#2563EB] hover:shadow-2xl shadow-lg"
+                            : "bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 opacity-90 cursor-not-allowed"
+                        }`}
                       >
-                        <Icono className="w-8 h-8 text-white" />
-                      </div>
-                      <h3 className="font-bold text-lg text-[#1E3A8A] mb-1 text-center">
-                        {categoria.titulo}
-                      </h3>
-                      <p className="text-sm text-gray-600 text-center mb-2">
-                        {categoria.subtitulo}
-                      </p>
-                      <p className="text-xs text-gray-500 text-center mb-4">
-                        {categoria.descripcion}
-                      </p>
-                      {votado && (
-                        <div className="flex items-center justify-center gap-2 text-green-600">
-                          <CheckCircle2 className="w-5 h-5" />
-                          <span className="text-sm font-semibold">Votado</span>
-                        </div>
-                      )}
-                      {esPendiente && (
-                        <div className="flex items-center justify-center gap-2 text-[#2563EB]">
-                          <ArrowRight className="w-4 h-4" />
-                          <span className="text-sm font-semibold">Votar</span>
-                        </div>
-                      )}
-                    </motion.div>
-                  );
-                })}
-              </div>
+                        {/* Efecto de brillo al hover */}
+                        {esPendiente && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        )}
 
-              {categoriasPendientes.length === 0 && (
-                <div className="text-center mt-6">
-                  <button
-                    onClick={() => setPaso(5)}
-                    className="bg-[#2563EB] hover:bg-[#1E40AF] text-white px-8 py-3 rounded-lg font-semibold transition-all transform hover:scale-[1.02]"
+                        <div className="relative p-8">
+                          {/* Icono con gradiente mejorado */}
+                          <div className="flex justify-center mb-6">
+                            <div
+                              className={`relative w-24 h-24 rounded-2xl bg-gradient-to-br ${categoria.color} flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform duration-300 ${
+                                esPendiente ? "group-hover:rotate-6" : ""
+                              }`}
+                            >
+                              <Icono className="w-12 h-12 text-white" />
+                              {esPendiente && (
+                                <div className="absolute inset-0 bg-white/20 rounded-2xl animate-pulse"></div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Contenido */}
+                          <div className="text-center">
+                            <h3 className={`font-bold text-xl mb-2 ${
+                              esPendiente ? "text-[#1E3A8A] group-hover:text-[#2563EB]" : "text-green-700"
+                            } transition-colors`}>
+                              {categoria.titulo}
+                            </h3>
+                            <p className="text-sm font-semibold text-gray-600 mb-2">
+                              {categoria.subtitulo}
+                            </p>
+                            <p className="text-xs text-gray-500 mb-6 leading-relaxed">
+                              {categoria.descripcion}
+                            </p>
+
+                            {/* Estado */}
+                            {votado && (
+                              <div className="flex items-center justify-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-lg font-semibold">
+                                <CheckCircle2 className="w-5 h-5" />
+                                <span>Votado</span>
+                              </div>
+                            )}
+                            {esPendiente && (
+                              <div className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#2563EB] to-[#1E40AF] text-white px-6 py-3 rounded-xl font-bold shadow-lg group-hover:shadow-xl transition-all">
+                                <ArrowRight className="w-5 h-5" />
+                                <span>Votar Ahora</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Borde decorativo */}
+                        {esPendiente && (
+                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2563EB] via-[#1E40AF] to-[#2563EB] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                {/* Botón finalizar si todas están votadas */}
+                {categoriasPendientes.length === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-center mt-8"
                   >
-                    Finalizar votación
-                    <ArrowRight className="w-5 h-5 inline-block ml-2" />
+                    <button
+                      onClick={() => setPaso(5)}
+                      className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 flex items-center gap-3 mx-auto"
+                    >
+                      <CheckCircle2 className="w-6 h-6" />
+                      Finalizar Votación
+                      <ArrowRight className="w-6 h-6" />
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Botón volver */}
+                <div className="text-center mt-8">
+                  <button
+                    onClick={() => setPaso(1)}
+                    className="text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2 mx-auto group"
+                  >
+                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                    <span className="font-medium">Volver atrás</span>
                   </button>
                 </div>
-              )}
-
-              <button
-                onClick={() => setPaso(1)}
-                className="text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2 mx-auto mt-4"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Volver atrás
-              </button>
+              </div>
             </motion.div>
           )}
 
@@ -502,68 +629,133 @@ export default function Votar() {
               </div>
 
               <div className="grid md:grid-cols-2 gap-6 mb-6">
-                {obtenerCandidatos().map((candidato) => (
+                {obtenerCandidatos().map((candidato, index) => (
                   <motion.div
                     key={candidato.id}
-                    whileHover={{ scale: 1.02 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02, y: -5 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => seleccionarCandidato(candidato)}
-                    className="border-2 border-gray-200 rounded-xl p-6 cursor-pointer transition-all hover:border-[#2563EB] hover:shadow-lg bg-gradient-to-br from-white to-gray-50"
+                    className="group border-2 border-gray-200 rounded-2xl p-6 cursor-pointer transition-all hover:border-[#2563EB] hover:shadow-2xl bg-gradient-to-br from-white to-gray-50 overflow-hidden relative"
                   >
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="bg-[#2563EB] text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold relative">
-                        {candidato.numero}
-                        <div className="absolute -top-1 -right-1 bg-white rounded-full p-1">
-                          <UserCircle className="w-4 h-4 text-[#2563EB]" />
+                    {/* Efecto de brillo al hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    
+                    <div className="relative">
+                      <div className="flex items-start gap-4 mb-4">
+                        {/* Foto del candidato */}
+                        <div className="relative">
+                          <img
+                            src={candidato.foto || `https://i.pravatar.cc/150?img=${candidato.id}`}
+                            alt={candidato.nombre}
+                            className="w-20 h-20 rounded-xl object-cover border-4 border-white shadow-lg group-hover:scale-110 transition-transform duration-300"
+                          />
+                          <div className="absolute -top-2 -right-2 bg-[#2563EB] text-white w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shadow-lg">
+                            {candidato.numero}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-xl text-[#1E3A8A] mb-1 group-hover:text-[#2563EB] transition-colors">
+                            {candidato.nombre}
+                          </h3>
+                          <p className="text-sm font-semibold text-gray-600">{candidato.partido}</p>
                         </div>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-lg text-[#1E3A8A] mb-1">
-                          {candidato.nombre}
-                        </h3>
-                        <p className="text-sm text-gray-600">{candidato.partido}</p>
-                      </div>
-                    </div>
-                    {candidato.vicepresidentes && (
-                      <div className="border-t border-gray-200 pt-3 mb-3">
-                        <p className="text-xs font-semibold text-gray-600 mb-1">
-                          Vicepresidentes:
+                      
+                      {candidato.vicepresidentes && (
+                        <div className="border-t border-gray-200 pt-4 mb-4">
+                          <p className="text-xs font-semibold text-gray-600 mb-2">
+                            Vicepresidentes:
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {candidato.vicepresidentes.map((vp, i) => (
+                              <span
+                                key={i}
+                                className="text-xs bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 px-3 py-1.5 rounded-lg font-medium border border-blue-200"
+                              >
+                                {vp}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {candidato.distrito && (
+                        <div className="border-t border-gray-200 pt-4 mb-4">
+                          <p className="text-xs text-gray-600">
+                            <span className="font-semibold">Distrito:</span>{" "}
+                            {candidato.distrito}
+                          </p>
+                        </div>
+                      )}
+                      
+                      <div className="border-t border-gray-200 pt-4">
+                        <p className="text-sm font-semibold text-gray-700 mb-3">
+                          Principales propuestas:
                         </p>
-                        <div className="flex flex-wrap gap-1">
-                          {candidato.vicepresidentes.map((vp, i) => (
-                            <span
-                              key={i}
-                              className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
-                            >
-                              {vp}
-                            </span>
+                        <ul className="space-y-2">
+                          {candidato.propuestas.slice(0, 2).map((propuesta, i) => (
+                            <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-[#2563EB] mt-0.5 flex-shrink-0" />
+                              <span>{propuesta}</span>
+                            </li>
                           ))}
-                        </div>
+                        </ul>
                       </div>
-                    )}
-                    {candidato.distrito && (
-                      <div className="border-t border-gray-200 pt-3 mb-3">
-                        <p className="text-xs text-gray-600">
-                          <span className="font-semibold">Distrito:</span>{" "}
-                          {candidato.distrito}
-                        </p>
-                      </div>
-                    )}
-                    <div className="border-t border-gray-200 pt-4">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">
-                        Principales propuestas:
-                      </p>
-                      <ul className="space-y-1">
-                        {candidato.propuestas.slice(0, 2).map((propuesta, i) => (
-                          <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-[#2563EB] mt-0.5 flex-shrink-0" />
-                            <span>{propuesta}</span>
-                          </li>
-                        ))}
-                      </ul>
                     </div>
+                    
+                    {/* Borde decorativo inferior */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2563EB] via-[#1E40AF] to-[#2563EB] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
                   </motion.div>
                 ))}
+                
+                {/* Opción de Voto Nulo/En Blanco */}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => seleccionarCandidato({
+                    id: 'nulo',
+                    nombre: 'Voto Nulo / En Blanco',
+                    partido: 'No me siento representado',
+                    numero: 'N',
+                    propuestas: ['Ejercer mi derecho al voto sin seleccionar candidato'],
+                    esNulo: true
+                  })}
+                  className="border-2 border-dashed border-gray-300 rounded-xl p-6 cursor-pointer transition-all hover:border-orange-400 hover:shadow-lg bg-gradient-to-br from-gray-50 to-orange-50"
+                >
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="bg-gradient-to-br from-orange-400 to-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold relative">
+                      <span className="text-2xl">∅</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-gray-800 mb-1">
+                        Voto Nulo / En Blanco
+                      </h3>
+                      <p className="text-sm text-gray-600">No me siento representado</p>
+                    </div>
+                  </div>
+                  <div className="border-t border-gray-200 pt-4">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">
+                      ¿Qué significa esto?
+                    </p>
+                    <ul className="space-y-1">
+                      <li className="text-sm text-gray-600 flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                        <span>Ejercer tu derecho al voto sin seleccionar ningún candidato</span>
+                      </li>
+                      <li className="text-sm text-gray-600 flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                        <span>Expresar tu descontento con las opciones disponibles</span>
+                      </li>
+                      <li className="text-sm text-gray-600 flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                        <span>Tu voto será registrado y contabilizado como nulo</span>
+                      </li>
+                    </ul>
+                  </div>
+                </motion.div>
               </div>
 
               <button
@@ -608,60 +800,102 @@ export default function Votar() {
               </div>
 
               <div className="max-w-md mx-auto">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-[#2563EB] rounded-xl p-6 mb-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="bg-[#2563EB] text-white w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold relative">
-                      {candidatoSeleccionado.numero}
-                      <div className="absolute -top-1 -right-1 bg-white rounded-full p-1.5">
-                        <UserCircle className="w-5 h-5 text-[#2563EB]" />
+                {candidatoSeleccionado.esNulo ? (
+                  // Confirmación de Voto Nulo
+                  <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-400 rounded-xl p-6 mb-6">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="bg-gradient-to-br from-orange-400 to-orange-500 text-white w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold">
+                        <span className="text-4xl">∅</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-xl text-gray-800">
+                          {candidatoSeleccionado.nombre}
+                        </h3>
+                        <p className="text-gray-600">{candidatoSeleccionado.partido}</p>
                       </div>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-xl text-[#1E3A8A]">
-                        {candidatoSeleccionado.nombre}
-                      </h3>
-                      <p className="text-gray-600">{candidatoSeleccionado.partido}</p>
-                      {candidatoSeleccionado.distrito && (
-                        <p className="text-sm text-gray-500 mt-1">
-                          Distrito: {candidatoSeleccionado.distrito}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  {candidatoSeleccionado.vicepresidentes && (
-                    <div className="border-t border-blue-200 pt-4 mb-4">
+                    <div className="border-t border-orange-200 pt-4">
                       <p className="text-sm font-semibold text-gray-700 mb-2">
-                        Vicepresidentes:
+                        Información importante:
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        {candidatoSeleccionado.vicepresidentes.map((vp, i) => (
-                          <span
-                            key={i}
-                            className="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm"
-                          >
-                            {vp}
-                          </span>
-                        ))}
+                      <ul className="space-y-2">
+                        <li className="text-sm text-gray-700 flex items-start gap-2">
+                          <AlertCircle className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                          <span>Tu voto será registrado como <strong>nulo</strong> o <strong>en blanco</strong></span>
+                        </li>
+                        <li className="text-sm text-gray-700 flex items-start gap-2">
+                          <AlertCircle className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                          <span>Este voto será contabilizado pero no favorecerá a ningún candidato</span>
+                        </li>
+                        <li className="text-sm text-gray-700 flex items-start gap-2">
+                          <AlertCircle className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                          <span>Es una forma válida de ejercer tu derecho al voto</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                ) : (
+                  // Confirmación de Candidato Normal
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-[#2563EB] rounded-xl p-6 mb-6">
+                    <div className="flex items-center gap-6 mb-4">
+                      {/* Foto del candidato en confirmación */}
+                      <div className="relative">
+                        <img
+                          src={candidatoSeleccionado.foto || `https://i.pravatar.cc/150?img=${candidatoSeleccionado.id}`}
+                          alt={candidatoSeleccionado.nombre}
+                          className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-xl"
+                        />
+                        <div className="absolute -top-2 -right-2 bg-[#2563EB] text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-lg">
+                          {candidatoSeleccionado.numero}
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-2xl text-[#1E3A8A] mb-1">
+                          {candidatoSeleccionado.nombre}
+                        </h3>
+                        <p className="text-gray-600 font-semibold">{candidatoSeleccionado.partido}</p>
+                        {candidatoSeleccionado.distrito && (
+                          <p className="text-sm text-gray-500 mt-1">
+                            Distrito: {candidatoSeleccionado.distrito}
+                          </p>
+                        )}
                       </div>
                     </div>
-                  )}
-                  <div className="border-t border-blue-200 pt-4">
-                    <p className="text-sm font-semibold text-gray-700 mb-2">
-                      Propuestas:
-                    </p>
-                    <ul className="space-y-2">
-                      {candidatoSeleccionado.propuestas.map((propuesta, i) => (
-                        <li
-                          key={i}
-                          className="text-sm text-gray-700 flex items-start gap-2"
-                        >
-                          <CheckCircle2 className="w-4 h-4 text-[#2563EB] mt-0.5 flex-shrink-0" />
-                          <span>{propuesta}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    {candidatoSeleccionado.vicepresidentes && (
+                      <div className="border-t border-blue-200 pt-4 mb-4">
+                        <p className="text-sm font-semibold text-gray-700 mb-2">
+                          Vicepresidentes:
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {candidatoSeleccionado.vicepresidentes.map((vp, i) => (
+                            <span
+                              key={i}
+                              className="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm"
+                            >
+                              {vp}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="border-t border-blue-200 pt-4">
+                      <p className="text-sm font-semibold text-gray-700 mb-2">
+                        Propuestas:
+                      </p>
+                      <ul className="space-y-2">
+                        {candidatoSeleccionado.propuestas.map((propuesta, i) => (
+                          <li
+                            key={i}
+                            className="text-sm text-gray-700 flex items-start gap-2"
+                          >
+                            <CheckCircle2 className="w-4 h-4 text-[#2563EB] mt-0.5 flex-shrink-0" />
+                            <span>{propuesta}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                   <div className="flex items-start gap-3">
@@ -736,14 +970,25 @@ export default function Votar() {
                     return (
                       <div
                         key={categoriaId}
-                        className="flex items-center justify-between bg-white p-2 rounded"
+                        className={`flex items-center justify-between p-3 rounded ${
+                          candidato.esNulo 
+                            ? 'bg-orange-50 border border-orange-200' 
+                            : 'bg-white'
+                        }`}
                       >
                         <span className="text-sm text-gray-700">
                           {categoria?.titulo}
                         </span>
-                        <span className="text-sm font-semibold text-[#2563EB]">
-                          Lista {candidato.numero}
-                        </span>
+                        {candidato.esNulo ? (
+                          <span className="text-sm font-semibold text-orange-600 flex items-center gap-1">
+                            <span className="text-lg">∅</span>
+                            Voto Nulo
+                          </span>
+                        ) : (
+                          <span className="text-sm font-semibold text-[#2563EB]">
+                            Lista {candidato.numero}
+                          </span>
+                        )}
                       </div>
                     );
                   })}

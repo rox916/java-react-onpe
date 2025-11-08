@@ -1,26 +1,23 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Search, Plus, Edit, Trash2, UserSquare2 } from "lucide-react";
 import CandidatoCrear from "./CandidatoCrear";
 import CandidatoEditar from "./CandidatoEditar";
 import CandidatoEliminar from "./CandidatoEliminar";
+import { getCandidatos, saveCandidatos } from "../../../services/candidatosService";
+import { PARTIDOS_POLITICOS, CARGOS_ELECTORALES } from "../../../constants/electoralConstants";
 
-// Datos iniciales simulados
-const initialCandidatos = [
-  { id: 1, nombre: "Rosa Paredes", partidoPolitico: "Fuerza Democrática", numeroLista: "1", cargo: "Presidente", foto: "https://i.pravatar.cc/150?img=26", estado: "Activo" },
-  { id: 2, nombre: "Carlos Vargas", partidoPolitico: "Fuerza Democrática", numeroLista: "1", cargo: "Vicepresidente", foto: "https://i.pravatar.cc/150?img=32", estado: "Activo" },
-  { id: 3, nombre: "Marco Antonio Luna", partidoPolitico: "Alianza País", numeroLista: "2", cargo: "Presidente", foto: "https://i.pravatar.cc/150?img=68", estado: "Activo" },
-  { id: 4, nombre: "Sofia Gutiérrez", partidoPolitico: "Alianza País", numeroLista: "2", cargo: "Vicepresidente", foto: "https://i.pravatar.cc/150?img=44", estado: "Activo" },
-  { id: 5, nombre: "David Fernández", partidoPolitico: "Unidad Nacional", numeroLista: "3", cargo: "Presidente", foto: "https://i.pravatar.cc/150?img=51", estado: "Activo" },
-  { id: 6, nombre: "Elena Rojas", partidoPolitico: "Renovación", numeroLista: "4", cargo: "Congresista", foto: "https://i.pravatar.cc/150?img=47", estado: "Inactivo" },
-];
-
-const partidos = ["Fuerza Democrática", "Alianza País", "Unidad Nacional", "Renovación", "Partido Popular", "Juntos por el Perú"];
-const cargos = ["Presidente", "Vicepresidente", "Congresista", "Parlamentario Andino"];
+const partidos = PARTIDOS_POLITICOS;
+const cargos = CARGOS_ELECTORALES;
 
 export default function Candidatos() {
-  const [candidatos, setCandidatos] = useState(initialCandidatos);
+  const [candidatos, setCandidatos] = useState([]);
+
+  // Cargar candidatos del servicio compartido
+  useEffect(() => {
+    setCandidatos(getCandidatos());
+  }, []);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCargo, setFilterCargo] = useState("Todos");
 
@@ -40,19 +37,25 @@ export default function Candidatos() {
     });
   }, [candidatos, searchTerm, filterCargo]);
 
-  // Acciones
+  // Acciones - Sincronizar con localStorage
   const handleCreate = (data) => {
-    setCandidatos([...candidatos, { ...data, id: Date.now() }]);
+    const nuevosCandidatos = [...candidatos, { ...data, id: Date.now() }];
+    setCandidatos(nuevosCandidatos);
+    saveCandidatos(nuevosCandidatos);
     setModalCreate(false);
   };
 
   const handleEdit = (data) => {
-    setCandidatos(candidatos.map((c) => (c.id === data.id ? data : c)));
+    const candidatosActualizados = candidatos.map((c) => (c.id === data.id ? data : c));
+    setCandidatos(candidatosActualizados);
+    saveCandidatos(candidatosActualizados);
     setModalEdit(false);
   };
 
   const handleDelete = () => {
-    setCandidatos(candidatos.filter((c) => c.id !== selectedCandidate.id));
+    const candidatosActualizados = candidatos.filter((c) => c.id !== selectedCandidate.id);
+    setCandidatos(candidatosActualizados);
+    saveCandidatos(candidatosActualizados);
     setModalDelete(false);
   };
 
@@ -108,32 +111,42 @@ export default function Candidatos() {
         </div>
       </div>
 
-      {/* 🧾 Grid de candidatos */}
+      {/* 🧾 Grid de candidatos con diseño mejorado */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCandidatos.map((candidato) => (
-          <div
+        {filteredCandidatos.map((candidato, index) => (
+          <motion.div
             key={candidato.id}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+            className="group bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
           >
-            <div className="p-6">
-              <div className="flex items-start gap-4">
-                <img
-                  src={candidato.foto}
-                  alt={candidato.nombre}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
-                />
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900">{candidato.nombre}</h3>
-                  <p className="text-sm text-gray-600">{candidato.cargo}</p>
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+            {/* Header con gradiente */}
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+              <div className="relative flex items-start gap-4">
+                <div className="relative">
+                  <img
+                    src={candidato.foto}
+                    alt={candidato.nombre}
+                    className="w-20 h-20 rounded-xl object-cover border-4 border-white shadow-lg"
+                  />
+                  <div className="absolute -bottom-1 -right-1 p-1.5 bg-white rounded-full shadow-md">
+                    <UserSquare2 className="w-4 h-4 text-blue-600" />
+                  </div>
+                </div>
+                <div className="flex-1 text-white">
+                  <h3 className="text-lg font-bold mb-1">{candidato.nombre}</h3>
+                  <p className="text-sm opacity-90 mb-3">{candidato.cargo}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-white/20 backdrop-blur-sm border border-white/30">
                       Lista {candidato.numeroLista}
                     </span>
                     <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      className={`px-2.5 py-1 text-xs font-bold rounded-lg border ${
                         candidato.estado === "Activo"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
+                          ? "bg-green-500/80 text-white border-green-400"
+                          : "bg-red-500/80 text-white border-red-400"
                       }`}
                     >
                       {candidato.estado}
@@ -141,19 +154,24 @@ export default function Candidatos() {
                   </div>
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <p className="text-sm font-medium text-gray-700">Partido Político</p>
-                <p className="text-sm text-gray-900">{candidato.partidoPolitico}</p>
+            </div>
+
+            {/* Body */}
+            <div className="p-6">
+              <div className="mb-4">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Partido Político</p>
+                <p className="text-base font-bold text-gray-900">{candidato.partidoPolitico}</p>
               </div>
             </div>
 
-            <div className="bg-gray-50 px-6 py-3 flex justify-end gap-2">
+            {/* Footer con acciones */}
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 flex justify-end gap-2 border-t border-gray-200">
               <button
                 onClick={() => {
                   setSelectedCandidate(candidato);
                   setModalEdit(true);
                 }}
-                className="text-gray-400 hover:text-green-600"
+                className="p-2.5 text-gray-400 hover:text-white hover:bg-green-500 rounded-lg transition-all duration-200 hover:scale-110 shadow-sm hover:shadow-md"
                 title="Editar"
               >
                 <Edit className="w-5 h-5" />
@@ -163,13 +181,13 @@ export default function Candidatos() {
                   setSelectedCandidate(candidato);
                   setModalDelete(true);
                 }}
-                className="text-gray-400 hover:text-red-600"
+                className="p-2.5 text-gray-400 hover:text-white hover:bg-red-500 rounded-lg transition-all duration-200 hover:scale-110 shadow-sm hover:shadow-md"
                 title="Eliminar"
               >
                 <Trash2 className="w-5 h-5" />
               </button>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 

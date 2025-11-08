@@ -15,7 +15,7 @@ export default function CentroCrear({ isOpen, onClose, onSave, departamentos }) 
     estado: "Activo",
   });
 
-  // 🧭 Bloquear scroll al abrir el modal
+  // Bloquear el scroll del body cuando el modal está abierto
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";

@@ -13,7 +13,7 @@ export default function UsuarioCrear({ isOpen, onClose, onSave, roles, departame
     departamento: departamentos[0],
   });
 
-  // 🧭 Bloquear scroll del body al abrir modal
+  // Bloquear el scroll del body cuando el modal está abierto
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";

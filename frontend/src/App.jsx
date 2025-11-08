@@ -1,20 +1,28 @@
-import { Routes, Route, Outlet } from "react-router-dom"; // <-- 1. Importa Outlet
+/**
+ * Componente principal de la aplicación
+ * Define todas las rutas públicas y de administración
+ * Utiliza React Router para la navegación entre páginas
+ */
+import { Routes, Route, Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import VotoDigital from "./pages/VotoDigital";
 import Votar from "./pages/Votar";
 import Resultados from "./pages/Resultados";
+import Informacion from "./pages/Informacion";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/panelAdmin/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// 2. Este componente ahora se usará correctamente
+/**
+ * Layout para las páginas públicas
+ * Incluye Navbar y Footer en todas las páginas públicas
+ */
 const PublicLayout = () => (
   <>
     <Navbar />
     <main className="flex-grow pt-16">
-      <Outlet /> {/* Aquí se renderizarán Home, VotoDigital, etc. */}
+      <Outlet />
     </main>
     <Footer />
   </>
@@ -23,12 +31,11 @@ const PublicLayout = () => (
 function App() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* 3. Un solo bloque <Routes> para toda la aplicación */}
       <Routes>
-        {/* Rutas de administración (sin Navbar/Footer público) */}
+        {/* Rutas de administración - No incluyen Navbar/Footer público */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route
-          path="/admin/*" // El asterisco es clave para rutas anidadas
+          path="/admin/*"
           element={
             <ProtectedRoute>
               <Admin />
@@ -36,15 +43,17 @@ function App() {
           }
         />
 
-        {/* Rutas públicas con su propio layout */}
+        {/* Rutas públicas - Incluyen Navbar y Footer */}
         <Route path="/" element={<PublicLayout />}>
           <Route index element={<Home />} />
-          <Route path="voto-digital" element={<VotoDigital />} />
           <Route path="votar" element={<Votar />} />
           <Route path="resultados" element={<Resultados />} />
+          <Route path="informacion" element={<Informacion />} />
+          {/* Redirección: voto-digital lleva a la sección correspondiente en informacion */}
+          <Route path="voto-digital" element={<Informacion />} />
         </Route>
         
-        {/* Página 404 si no encuentra nada (siempre al final) */}
+        {/* Página 404 - Debe estar al final para capturar rutas no encontradas */}
         <Route path="*" element={<div>404 - Página no encontrada</div>} />
       </Routes>
     </div>

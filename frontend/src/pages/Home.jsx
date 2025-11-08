@@ -1,16 +1,22 @@
+/**
+ * Página principal (Home) del sistema electoral
+ * Muestra información general sobre las elecciones, modalidades de votación
+ * y proporciona acceso rápido a las funcionalidades principales
+ */
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Calendar, Users, Building2, Vote, FileSearch, CheckCircle2 } from "lucide-react";
 
 export default function Home() {
+  // Cálculo de días y meses restantes hasta las elecciones
   const fechaElecciones = new Date("2026-04-12T00:00:00").getTime();
   const ahora = new Date().getTime();
   const diferencia = fechaElecciones - ahora;
   const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
   const meses = Math.floor(dias / 30);
 
-  // Animación base
+  // Configuración de animaciones para las secciones
   const fadeUp = {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
@@ -40,16 +46,18 @@ export default function Home() {
 
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
-              to="/voto-digital"
-              className="bg-[#2563EB] hover:bg-[#1E40AF] px-8 py-3 rounded-lg text-lg font-medium transition-all transform hover:scale-[1.02] shadow-lg shadow-blue-900/30"
+              to="/votar"
+              className="bg-[#2563EB] hover:bg-[#1E40AF] px-8 py-3 rounded-lg text-lg font-medium transition-all transform hover:scale-[1.02] shadow-lg shadow-blue-900/30 flex items-center gap-2"
             >
-              Saber cómo votar digitalmente
+              <Vote className="w-5 h-5" />
+              Ir a Votar Ahora
             </Link>
             <Link
-              to="/votar"
-              className="border border-blue-200 text-blue-100 px-8 py-3 rounded-lg text-lg font-medium hover:bg-white hover:text-[#0F172A] transition-all transform hover:scale-[1.02]"
+              to="/informacion"
+              className="border border-blue-200 text-blue-100 px-8 py-3 rounded-lg text-lg font-medium hover:bg-white hover:text-[#0F172A] transition-all transform hover:scale-[1.02] flex items-center gap-2"
             >
-              Ir a votar
+              <FileSearch className="w-5 h-5" />
+              Información Electoral
             </Link>
           </div>
         </motion.div>
@@ -100,75 +108,104 @@ export default function Home() {
       </motion.section>
 
       {/* ===== MODALIDADES DE VOTO ===== */}
-      <section className="relative py-24 bg-gradient-to-b from-[#F1F5F9] to-[#E2E8F0] px-6">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+      <section className="relative py-24 bg-gradient-to-b from-[#F1F5F9] to-[#E2E8F0] px-6 overflow-hidden">
+        {/* Elementos decorativos de fondo */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-indigo-500 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center relative z-10">
           <motion.div initial="hidden" whileInView="visible" variants={fadeUp} viewport={{ once: true }}>
-            <h2 className="text-3xl font-bold text-[#1E3A8A] mb-6">
+            <div className="inline-block mb-4">
+              <span className="px-4 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-bold rounded-full">
+                Modalidades Disponibles
+              </span>
+            </div>
+            <h2 className="text-4xl font-bold text-[#1E3A8A] mb-6">
               Modalidades de Votación
             </h2>
-            <p className="text-gray-700 mb-6 leading-relaxed">
+            <p className="text-gray-700 mb-8 leading-relaxed text-lg">
               En las Elecciones Generales 2026 podrás participar de dos maneras:  
-              <strong> voto presencial</strong> y <strong>voto digital</strong>.  
+              <strong className="text-[#1E3A8A]"> voto presencial</strong> y <strong className="text-[#1E3A8A]">voto digital</strong>.  
               Ambas modalidades aseguran accesibilidad y transparencia en el proceso.
             </p>
-            <ul className="space-y-3 text-gray-700">
+            <ul className="space-y-4 text-gray-700 mb-8">
               {[
                 {
                   label: "Voto presencial",
                   desc: "Acércate a tu local de votación asignado con tu DNI vigente.",
+                  icon: Building2,
                 },
                 {
                   label: "Voto digital",
                   desc: "Emite tu voto en línea de forma segura desde cualquier dispositivo conectado a Internet.",
+                  icon: Vote,
                 },
                 {
                   label: "Verificación",
                   desc: "Confirma tu modalidad en el padrón electoral oficial.",
+                  icon: CheckCircle2,
                 },
-              ].map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-[#2563EB] mt-1" />
-                  <p>
-                    <span className="font-semibold text-[#1E3A8A]">{item.label}: </span>
-                    {item.desc}
-                  </p>
-                </li>
-              ))}
+              ].map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <motion.li 
+                    key={i} 
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    viewport={{ once: true }}
+                    className="flex items-start gap-4 bg-white/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200 hover:shadow-lg transition-all"
+                  >
+                    <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg">
+                      <Icon className="w-5 h-5 text-[#2563EB]" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-[#1E3A8A] mb-1">{item.label}</p>
+                      <p className="text-sm text-gray-600">{item.desc}</p>
+                    </div>
+                  </motion.li>
+                );
+              })}
             </ul>
 
-            <div className="mt-8 flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4">
               <Link
-                to="/voto-digital"
-                className="bg-[#2563EB] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#1E40AF] transition-all transform hover:scale-[1.02]"
+                to="/informacion#voto-digital"
+                className="bg-gradient-to-r from-[#2563EB] to-[#1E40AF] text-white px-8 py-3 rounded-xl font-semibold hover:shadow-xl transition-all transform hover:scale-[1.02] shadow-lg"
               >
                 Conocer voto digital
               </Link>
-              <a
-                href="#"
-                className="border border-[#2563EB] text-[#2563EB] px-6 py-3 rounded-lg font-medium hover:bg-[#2563EB] hover:text-white transition-all transform hover:scale-[1.02]"
-              >
-                Ver locales de votación
-              </a>
             </div>
           </motion.div>
 
-          {/* Tarjeta lateral */}
+          {/* Tarjeta lateral mejorada */}
           <motion.div
             initial="hidden"
             whileInView="visible"
             variants={fadeUp}
             viewport={{ once: true }}
-            className="bg-white shadow-xl border border-gray-100 rounded-2xl p-10 text-center hover:shadow-2xl transition"
+            className="relative group"
           >
-            <Vote className="w-20 h-20 text-[#2563EB] mx-auto mb-6" />
-            <h3 className="text-2xl font-semibold text-[#1E3A8A] mb-4">Tu voto cuenta</h3>
-            <p className="text-gray-700 mb-4">
-              El voto es un derecho y un deber ciudadano. Participa activamente 
-              en la construcción del futuro de nuestro país.
-            </p>
-            <p className="text-gray-500 italic text-sm">
-              “Una democracia fuerte se construye con la participación de todos.”
-            </p>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl blur-xl opacity-30 group-hover:opacity-40 transition-opacity"></div>
+            <div className="relative bg-gradient-to-br from-white to-gray-50 shadow-2xl border border-gray-100 rounded-3xl p-10 text-center hover:shadow-3xl transition-all transform hover:-translate-y-2">
+              <div className="mb-6 flex justify-center">
+                <div className="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg">
+                  <Vote className="w-16 h-16 text-white" />
+                </div>
+              </div>
+              <h3 className="text-3xl font-bold text-[#1E3A8A] mb-4">Tu voto cuenta</h3>
+              <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+                El voto es un derecho y un deber ciudadano. Participa activamente 
+                en la construcción del futuro de nuestro país.
+              </p>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                <p className="text-gray-600 italic text-sm font-medium">
+                  "Una democracia fuerte se construye con la participación de todos."
+                </p>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -235,7 +272,7 @@ export default function Home() {
           y ejerce tu derecho ciudadano con responsabilidad y confianza.
         </p>
         <Link
-          to="/voto-digital"
+          to="/informacion#voto-digital"
           className="bg-[#2563EB] text-white px-8 py-3 rounded-lg font-medium hover:bg-[#1E40AF] transition-all transform hover:scale-[1.02] relative z-10"
         >
           Explorar voto digital
