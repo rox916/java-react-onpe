@@ -30,14 +30,16 @@ const estadisticas = {
   incidencias: 126,
 };
 
-// Resultados por partido (barras)
+// Resultados por partido (barras) - Elecciones 2026
 const resultadosPartidos = [
-  { partido: "FD", nombre: "Fuerza Democrática", porcentaje: 16.29, color: "#DC2626" },
-  { partido: "AP", nombre: "Alianza País", porcentaje: 13.49, color: "#2563EB" },
-  { partido: "UN", nombre: "Unidad Nacional", porcentaje: 12.09, color: "#EA580C" },
-  { partido: "JP", nombre: "Juntos por el Perú", porcentaje: 7.8, color: "#16A34A" },
-  { partido: "PP", nombre: "Partido Popular", porcentaje: 8.9, color: "#9333EA" },
-  { partido: "VW", nombre: "Vamos con Todos", porcentaje: 5.9, color: "#64748B" },
+  { partido: "FP", nombre: "Fuerza Popular", porcentaje: 18.5, color: "#DC2626" },
+  { partido: "RP", nombre: "Renovación Popular", porcentaje: 15.2, color: "#2563EB" },
+  { partido: "AP", nombre: "Acción Popular", porcentaje: 12.8, color: "#EA580C" },
+  { partido: "APP", nombre: "Alianza para el Progreso", porcentaje: 11.3, color: "#16A34A" },
+  { partido: "JPP", nombre: "Juntos por el Perú", porcentaje: 9.7, color: "#9333EA" },
+  { partido: "PM", nombre: "Partido Morado", porcentaje: 8.4, color: "#7C3AED" },
+  { partido: "UN", nombre: "Unidad Nacional", porcentaje: 7.2, color: "#F59E0B" },
+  { partido: "SP", nombre: "Somos Perú", porcentaje: 6.1, color: "#64748B" },
 ];
 
 // Participación regional (línea)

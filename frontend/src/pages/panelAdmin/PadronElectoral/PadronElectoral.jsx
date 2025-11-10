@@ -81,7 +81,7 @@ export default function PadronElectoral() {
         </div>
         <button
           onClick={handleOpenUploadModal}
-          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md"
+          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md transition-all font-medium"
         >
           <Upload className="w-5 h-5" /> Cargar Padrón
         </button>
@@ -102,21 +102,30 @@ export default function PadronElectoral() {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Votante</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ubicación</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Centro / Mesa</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Votante</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Ubicación</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Centro / Mesa</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Estado</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredPadron.map((voter) => (
-                <tr key={voter.id} className="hover:bg-gray-50 transition">
+            <tbody className="bg-white divide-y divide-gray-100">
+              {filteredPadron.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center">
+                    <ClipboardCheck className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 font-medium">No se encontraron votantes</p>
+                    <p className="text-sm text-gray-500 mt-1">Intenta ajustar los filtros de búsqueda</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredPadron.map((voter) => (
+                <tr key={voter.id} className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 group">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{voter.nombre}</div>
                     <div className="text-sm text-gray-500">DNI: {voter.dni}</div>
@@ -146,24 +155,27 @@ export default function PadronElectoral() {
                       {voter.estado}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleOpenDetailsModal(voter)}
-                      className="text-gray-400 hover:text-blue-600 mx-1"
-                      title="Ver Detalles"
-                    >
-                      <Eye className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleOpenEditModal(voter)}
-                      className="text-gray-400 hover:text-yellow-600 mx-1"
-                      title="Editar Estado"
-                    >
-                      <Edit className="w-5 h-5" />
-                    </button>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => handleOpenDetailsModal(voter)}
+                        className="p-2 text-gray-400 hover:text-white hover:bg-blue-500 rounded-lg transition-all duration-200 hover:scale-110"
+                        title="Ver Detalles"
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleOpenEditModal(voter)}
+                        className="p-2 text-gray-400 hover:text-white hover:bg-yellow-500 rounded-lg transition-all duration-200 hover:scale-110"
+                        title="Editar Estado"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>

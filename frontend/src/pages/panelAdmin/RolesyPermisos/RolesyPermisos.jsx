@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import { ShieldCheck, ShieldAlert, Plus, Edit, Trash2, Lock } from "lucide-react";
+import { ShieldCheck, ShieldAlert, Plus, Edit, Trash2, Lock, Search, Filter } from "lucide-react";
 import RolCrear from "./RolCrear";
 import RolEditar from "./RolEditar";
 import RolEliminar from "./RolEliminar";
@@ -44,6 +44,8 @@ export default function RolesyPermisos() {
   const [modalCreate, setModalCreate] = useState(false);
   const [modalEdit, setModalEdit] = useState(false);
   const [modalDelete, setModalDelete] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterEstado, setFilterEstado] = useState("Todos");
 
   const handleCreate = (data) => {
     setRoles([...roles, { ...data, id: Date.now() }]);
@@ -60,6 +62,16 @@ export default function RolesyPermisos() {
     setModalDelete(false);
   };
 
+  // Filtros y búsqueda
+  const filteredRoles = roles.filter((r) => {
+    const matchesSearch =
+      r.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.permisos.some((p) => p.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesEstado = filterEstado === "Todos" || r.estado === filterEstado;
+    return matchesSearch && matchesEstado;
+  });
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       {/* 🧭 Encabezado */}
@@ -75,27 +87,68 @@ export default function RolesyPermisos() {
         </div>
         <button
           onClick={() => setModalCreate(true)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition-all font-medium"
         >
           <Plus className="w-5 h-5" /> Crear Nuevo Rol
         </button>
       </div>
 
+      {/* 🔍 Búsqueda y Filtros */}
+      <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Buscar por nombre, descripción o permisos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <select
+            value={filterEstado}
+            onChange={(e) => setFilterEstado(e.target.value)}
+            className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="Todos">Todos los Estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+
+          <div className="flex items-center justify-center text-sm text-gray-600 bg-gray-50 rounded-lg px-3">
+            <Filter className="w-4 h-4 mr-2" />
+            {filteredRoles.length} roles encontrados
+          </div>
+        </div>
+      </div>
+
       {/* 🧾 Tabla */}
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Permisos</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {roles.map((rol) => (
-              <tr key={rol.id} className="hover:bg-gray-50 transition-colors duration-150">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Rol</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Descripción</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Permisos</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Estado</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {filteredRoles.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center">
+                    <ShieldCheck className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 font-medium">No se encontraron roles</p>
+                    <p className="text-sm text-gray-500 mt-1">Intenta ajustar los filtros de búsqueda</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredRoles.map((rol) => (
+              <tr key={rol.id} className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all duration-200 group">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
                     {rol.estado === "Activo" ? (
@@ -136,31 +189,35 @@ export default function RolesyPermisos() {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={() => {
-                      setSelectedRole(rol);
-                      setModalEdit(true);
-                    }}
-                    className="text-gray-400 hover:text-green-600 mx-1"
-                    title="Editar"
-                  >
-                    <Edit className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedRole(rol);
-                      setModalDelete(true);
-                    }}
-                    className="text-gray-400 hover:text-red-600 mx-1"
-                    title="Eliminar"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => {
+                        setSelectedRole(rol);
+                        setModalEdit(true);
+                      }}
+                      className="p-2 text-gray-400 hover:text-white hover:bg-green-500 rounded-lg transition-all duration-200 hover:scale-110"
+                      title="Editar"
+                    >
+                      <Edit className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedRole(rol);
+                        setModalDelete(true);
+                      }}
+                      className="p-2 text-gray-400 hover:text-white hover:bg-red-500 rounded-lg transition-all duration-200 hover:scale-110"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* 🧩 Modales */}

@@ -25,17 +25,21 @@ import {
 export default function Analisis() {
   const [step, setStep] = useState(1);
   const [fileName, setFileName] = useState("");
+  const [fileData, setFileData] = useState(null);
   const [showResults, setShowResults] = useState(false);
   const [selectedCleaning, setSelectedCleaning] = useState([]);
+  const [cleaningResults, setCleaningResults] = useState(null);
+  const [trainingProgress, setTrainingProgress] = useState(0);
+  const [isTraining, setIsTraining] = useState(false);
 
-  // Datos simulados para análisis
-  const analisisData = {
-    totalRegistros: 12763599,
-    registrosLimpios: 12458923,
-    registrosEliminados: 304676,
-    precision: 94.2,
-    completitud: 97.6,
-  };
+  // Datos simulados para análisis (se actualizarán con datos reales)
+  const [analisisData, setAnalisisData] = useState({
+    totalRegistros: 0,
+    registrosLimpios: 0,
+    registrosEliminados: 0,
+    precision: 0,
+    completitud: 0,
+  });
 
   // Datos para gráficos
   const distribucionPorRegion = [
@@ -57,10 +61,13 @@ export default function Analisis() {
   ];
 
   const prediccionesPartidos = [
-    { partido: "FD", nombre: "Fuerza Democrática", prediccion: 18.5, confianza: 92 },
-    { partido: "AP", nombre: "Alianza País", prediccion: 15.2, confianza: 89 },
-    { partido: "UN", nombre: "Unidad Nacional", prediccion: 13.8, confianza: 87 },
-    { partido: "JP", nombre: "Juntos por el Perú", prediccion: 9.1, confianza: 85 },
+    { partido: "FP", nombre: "Fuerza Popular", prediccion: 18.5, confianza: 92 },
+    { partido: "RP", nombre: "Renovación Popular", prediccion: 15.2, confianza: 89 },
+    { partido: "AP", nombre: "Acción Popular", prediccion: 12.8, confianza: 87 },
+    { partido: "APP", nombre: "Alianza para el Progreso", prediccion: 11.3, confianza: 85 },
+    { partido: "JPP", nombre: "Juntos por el Perú", prediccion: 9.7, confianza: 83 },
+    { partido: "PM", nombre: "Partido Morado", prediccion: 8.4, confianza: 81 },
+    { partido: "UN", nombre: "Unidad Nacional", prediccion: 7.2, confianza: 79 },
   ];
 
   const COLORS = ["#DC2626", "#2563EB", "#EA580C", "#16A34A", "#9333EA", "#64748B"];
@@ -69,10 +76,22 @@ export default function Analisis() {
     const file = e.target.files[0];
     if (file) {
       setFileName(file.name);
-      // Simular procesamiento
-      setTimeout(() => {
-        setStep(2);
-      }, 1000);
+      // Simular lectura del archivo y obtener información
+      const simulatedData = {
+        totalRows: 12763599,
+        columns: ["DNI", "Nombres", "Apellidos", "Región", "Provincia", "Distrito", "Centro de Votación", "Mesa"],
+        sampleRows: [
+          { DNI: "12345678", Nombres: "Juan", Apellidos: "Pérez", Región: "Lima", Provincia: "Lima", Distrito: "San Isidro", "Centro de Votación": "Colegio San Patricio", Mesa: "001A" },
+          { DNI: "87654321", Nombres: "María", Apellidos: "García", Región: "Cusco", Provincia: "Cusco", Distrito: "Cusco", "Centro de Votación": "Escuela Primaria", Mesa: "002B" },
+          { DNI: "11223344", Nombres: "Carlos", Apellidos: "López", Región: "Arequipa", Provincia: "Arequipa", Distrito: "Yanahuara", "Centro de Votación": "Instituto Tecnológico", Mesa: "003C" },
+        ],
+        fileSize: (file.size / 1024 / 1024).toFixed(2) + " MB",
+      };
+      setFileData(simulatedData);
+      setAnalisisData(prev => ({
+        ...prev,
+        totalRegistros: simulatedData.totalRows,
+      }));
     }
   };
 
@@ -82,19 +101,98 @@ export default function Analisis() {
     );
   };
 
-  const handleNext = () => {
-    if (step === 2 && selectedCleaning.length === 0) {
+  const handleApplyCleaning = () => {
+    if (selectedCleaning.length === 0) {
       alert("Por favor selecciona al menos una operación de limpieza");
       return;
     }
-    if (step === 3) {
+    
+    // Simular proceso de limpieza
+    const totalRows = fileData?.totalRows || analisisData.totalRegistros;
+    const registrosEliminados = Math.floor(totalRows * 0.024); // ~2.4% eliminados
+    const registrosLimpios = totalRows - registrosEliminados;
+    const precision = 94.2;
+    const completitud = ((registrosLimpios / totalRows) * 100).toFixed(1);
+
+    setCleaningResults({
+      registrosEliminados,
+      registrosLimpios,
+      precision,
+      completitud: parseFloat(completitud),
+      operacionesAplicadas: selectedCleaning,
+    });
+
+    setAnalisisData({
+      totalRegistros: totalRows,
+      registrosLimpios,
+      registrosEliminados,
+      precision,
+      completitud: parseFloat(completitud),
+    });
+  };
+
+  const handleStartTraining = () => {
+    setIsTraining(true);
+    setTrainingProgress(0);
+    
+    // Simular progreso del entrenamiento
+    const interval = setInterval(() => {
+      setTrainingProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsTraining(false);
+          return 100;
+        }
+        return prev + 5;
+      });
+    }, 200);
+  };
+
+  const handleNext = () => {
+    if (step === 1) {
+      if (!fileData) {
+        alert("Por favor carga un archivo primero");
+        return;
+      }
+      setStep(2);
+    } else if (step === 2) {
+      if (!cleaningResults) {
+        alert("Por favor aplica la limpieza de datos primero");
+        return;
+      }
+      setStep(3);
+    } else if (step === 3) {
+      if (trainingProgress < 100) {
+        alert("Por favor espera a que termine el entrenamiento");
+        return;
+      }
       setShowResults(true);
-    } else {
-      setStep((prev) => Math.min(prev + 1, 3));
     }
   };
 
-  const handleBack = () => setStep((prev) => Math.max(prev - 1, 1));
+  const handleBack = () => {
+    if (step > 1) {
+      setStep((prev) => prev - 1);
+    }
+  };
+
+  const handleReset = () => {
+    setShowResults(false);
+    setStep(1);
+    setFileName("");
+    setFileData(null);
+    setSelectedCleaning([]);
+    setCleaningResults(null);
+    setTrainingProgress(0);
+    setIsTraining(false);
+    setAnalisisData({
+      totalRegistros: 0,
+      registrosLimpios: 0,
+      registrosEliminados: 0,
+      precision: 0,
+      completitud: 0,
+    });
+  };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
@@ -107,7 +205,7 @@ export default function Analisis() {
               Análisis de Datos Electorales
             </h1>
             <p className="text-sm text-gray-600">
-              Flujo completo: carga, limpieza y entrenamiento del modelo.
+              Procesa y analiza datos electorales: carga de archivos, limpieza de datos y entrenamiento de modelos predictivos.
             </p>
           </div>
         </div>
@@ -126,7 +224,7 @@ export default function Analisis() {
       </div>
 
       {/* 📊 Vista de Resultados */}
-      {showResults ? (
+      {showResults && analisisData.totalRegistros > 0 ? (
         <div className="space-y-6">
           {/* Métricas principales */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -316,13 +414,8 @@ export default function Analisis() {
 
           <div className="flex justify-end">
             <button
-              onClick={() => {
-                setShowResults(false);
-                setStep(1);
-                setFileName("");
-                setSelectedCleaning([]);
-              }}
-              className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all"
+              onClick={handleReset}
+              className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all font-medium"
             >
               Nuevo Análisis
             </button>
@@ -375,27 +468,94 @@ export default function Analisis() {
           {step === 1 && (
             <div>
               <h3 className="text-lg font-semibold text-blue-600 mb-4">
-                Carga de Dataset
+                Paso 1: Carga de Dataset
               </h3>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center mb-6">
-                <p className="text-gray-500 mb-2">
-                  Arrastra tu archivo aquí o selecciona manualmente.
-                </p>
-                <label className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-all">
-                  Seleccionar archivo
-                  <input
-                    type="file"
-                    accept=".csv, .xlsx"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                </label>
-                {fileName && (
-                  <p className="mt-3 text-sm text-gray-600">
-                    Archivo cargado: <strong>{fileName}</strong>
+              <p className="text-gray-600 mb-4">
+                Selecciona el archivo con los datos electorales que deseas analizar. Formatos soportados: CSV, XLSX.
+              </p>
+              
+              {!fileData ? (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center mb-6">
+                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 mb-2">
+                    Arrastra tu archivo aquí o selecciona manualmente.
                   </p>
-                )}
-              </div>
+                  <label className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg cursor-pointer transition-all">
+                    Seleccionar archivo
+                    <input
+                      type="file"
+                      accept=".csv, .xlsx"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center gap-2 text-green-800 mb-2">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="font-semibold">Archivo cargado exitosamente</span>
+                    </div>
+                    <p className="text-sm text-green-700">
+                      <strong>{fileName}</strong> ({fileData.fileSize})
+                    </p>
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-3">Resumen del archivo</h4>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <p className="text-sm text-gray-600">Total de registros</p>
+                        <p className="text-lg font-bold text-gray-900">{fileData.totalRows.toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Columnas</p>
+                        <p className="text-lg font-bold text-gray-900">{fileData.columns.length}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <p className="text-sm text-gray-600 mb-2">Columnas detectadas:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {fileData.columns.map((col, idx) => (
+                          <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                            {col}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">Vista previa (primeras 3 filas):</p>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs border border-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              {fileData.columns.map((col, idx) => (
+                                <th key={idx} className="px-2 py-2 text-left border border-gray-200 font-semibold text-gray-700">
+                                  {col}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {fileData.sampleRows.map((row, rowIdx) => (
+                              <tr key={rowIdx} className="border-b border-gray-200">
+                                {fileData.columns.map((col, colIdx) => (
+                                  <td key={colIdx} className="px-2 py-2 border border-gray-200 text-gray-600">
+                                    {row[col] || "-"}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -403,31 +563,94 @@ export default function Analisis() {
           {step === 2 && (
             <div>
               <h3 className="text-lg font-semibold text-blue-600 mb-4">
-                Limpieza de Datos
+                Paso 2: Limpieza de Datos
               </h3>
               <p className="text-gray-600 mb-4">
-                Selecciona las operaciones que deseas aplicar:
+                Selecciona las operaciones de limpieza que deseas aplicar a los datos cargados. Esto mejorará la calidad de los datos para el análisis.
               </p>
-              <ul className="space-y-3 mb-8">
-                {[
-                  "Eliminar filas vacías",
-                  "Corregir nombres geográficos",
-                  "Eliminar duplicados",
-                  "Normalizar variables numéricas",
-                ].map((p, i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={selectedCleaning.includes(p)}
-                      onChange={() => handleCleaningToggle(p)}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <span className={selectedCleaning.includes(p) ? "font-medium text-blue-600" : "text-gray-700"}>
-                      {p}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+
+              {fileData && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-blue-800">
+                    <strong>Datos a procesar:</strong> {fileData.totalRows.toLocaleString()} registros
+                  </p>
+                </div>
+              )}
+
+              <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+                <h4 className="font-semibold text-gray-900 mb-3">Operaciones de limpieza disponibles:</h4>
+                <ul className="space-y-3">
+                  {[
+                    { name: "Eliminar filas vacías", desc: "Elimina registros que no tienen información en campos críticos" },
+                    { name: "Corregir nombres geográficos", desc: "Normaliza y corrige nombres de regiones, provincias y distritos" },
+                    { name: "Eliminar duplicados", desc: "Identifica y elimina registros duplicados basados en DNI" },
+                    { name: "Normalizar variables numéricas", desc: "Estandariza formatos numéricos y corrige valores inconsistentes" },
+                  ].map((op, i) => (
+                    <li key={i} className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={selectedCleaning.includes(op.name)}
+                        onChange={() => handleCleaningToggle(op.name)}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 mt-1"
+                      />
+                      <div className="flex-1">
+                        <span className={selectedCleaning.includes(op.name) ? "font-medium text-blue-600" : "text-gray-700"}>
+                          {op.name}
+                        </span>
+                        <p className="text-xs text-gray-500 mt-1">{op.desc}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {selectedCleaning.length > 0 && (
+                <div className="mb-4">
+                  <button
+                    onClick={handleApplyCleaning}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-all font-medium"
+                  >
+                    Aplicar Limpieza
+                  </button>
+                </div>
+              )}
+
+              {cleaningResults && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+                  <div className="flex items-center gap-2 text-green-800 mb-3">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="font-semibold">Limpieza completada exitosamente</span>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-xs text-green-700 mb-1">Registros procesados</p>
+                      <p className="text-lg font-bold text-green-900">{cleaningResults.registrosLimpios.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-green-700 mb-1">Registros eliminados</p>
+                      <p className="text-lg font-bold text-green-900">{cleaningResults.registrosEliminados.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-green-700 mb-1">Precisión</p>
+                      <p className="text-lg font-bold text-green-900">{cleaningResults.precision}%</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-green-700 mb-1">Completitud</p>
+                      <p className="text-lg font-bold text-green-900">{cleaningResults.completitud}%</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-green-200">
+                    <p className="text-xs text-green-700 mb-1">Operaciones aplicadas:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {cleaningResults.operacionesAplicadas.map((op, idx) => (
+                        <span key={idx} className="px-2 py-1 bg-green-200 text-green-800 text-xs rounded">
+                          {op}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -435,27 +658,90 @@ export default function Analisis() {
           {step === 3 && (
             <div>
               <h3 className="text-lg font-semibold text-blue-600 mb-4">
-                Entrenamiento del Modelo
+                Paso 3: Entrenamiento del Modelo
               </h3>
               <p className="text-gray-600 mb-4">
-                Simulación del proceso de entrenamiento con datos limpios.
+                Entrena el modelo de predicción con los datos limpios. Este proceso puede tomar varios minutos.
               </p>
 
-              <div className="w-full bg-gray-200 rounded-full h-3 mb-6 overflow-hidden">
-                <motion.div
-                  className="bg-blue-600 h-3"
-                  initial={{ width: 0 }}
-                  animate={{ width: "75%" }}
-                  transition={{ duration: 1 }}
-                />
-              </div>
+              {cleaningResults && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <p className="text-sm text-blue-800">
+                    <strong>Datos para entrenamiento:</strong> {cleaningResults.registrosLimpios.toLocaleString()} registros limpios
+                  </p>
+                </div>
+              )}
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <MetricsCard title="Accuracy" value="92%" />
-                <MetricsCard title="F1 Score" value="0.88" />
-                <MetricsCard title="Precision" value="89%" />
-                <MetricsCard title="Recall" value="91%" />
-              </div>
+              {!isTraining && trainingProgress === 0 && (
+                <div className="bg-white border border-gray-200 rounded-lg p-6 text-center mb-6">
+                  <Cpu className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">
+                    Presiona el botón para iniciar el entrenamiento del modelo de predicción.
+                  </p>
+                  <button
+                    onClick={handleStartTraining}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-all font-medium"
+                  >
+                    Iniciar Entrenamiento
+                  </button>
+                </div>
+              )}
+
+              {isTraining && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-center gap-2 text-yellow-800 mb-2">
+                    <Cpu className="w-5 h-5 animate-pulse" />
+                    <span className="font-semibold">Entrenamiento en progreso...</span>
+                  </div>
+                  <p className="text-sm text-yellow-700">
+                    Por favor espera mientras el modelo se entrena. No cierres esta ventana.
+                  </p>
+                </div>
+              )}
+
+              {trainingProgress > 0 && (
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-gray-700">Progreso del entrenamiento</span>
+                      <span className="text-sm font-bold text-blue-600">{trainingProgress}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                      <motion.div
+                        className="bg-blue-600 h-4"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${trainingProgress}%` }}
+                        transition={{ duration: 0.3 }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {trainingProgress < 30 && "Preparando datos..."}
+                      {trainingProgress >= 30 && trainingProgress < 60 && "Entrenando modelo..."}
+                      {trainingProgress >= 60 && trainingProgress < 90 && "Validando modelo..."}
+                      {trainingProgress >= 90 && trainingProgress < 100 && "Finalizando..."}
+                      {trainingProgress === 100 && "Entrenamiento completado"}
+                    </p>
+                  </div>
+
+                  {trainingProgress === 100 && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-green-800 mb-3">
+                        <CheckCircle className="w-5 h-5" />
+                        <span className="font-semibold">Entrenamiento completado exitosamente</span>
+                      </div>
+                      <p className="text-sm text-green-700 mb-4">
+                        El modelo ha sido entrenado con los datos procesados y está listo para generar predicciones.
+                      </p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <MetricsCard title="Accuracy" value="92%" />
+                        <MetricsCard title="F1 Score" value="0.88" />
+                        <MetricsCard title="Precision" value="89%" />
+                        <MetricsCard title="Recall" value="91%" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </motion.div>
@@ -474,17 +760,43 @@ export default function Analisis() {
             ← Atrás
           </button>
 
-          {step < 3 ? (
+          {step === 1 && (
             <button
               onClick={handleNext}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all"
+              disabled={!fileData}
+              className={`px-6 py-2 rounded-lg transition-all font-medium ${
+                !fileData
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
             >
-              Siguiente →
+              Continuar a Limpieza →
             </button>
-          ) : (
+          )}
+
+          {step === 2 && (
             <button
               onClick={handleNext}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-all"
+              disabled={!cleaningResults}
+              className={`px-6 py-2 rounded-lg transition-all font-medium ${
+                !cleaningResults
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              Continuar a Entrenamiento →
+            </button>
+          )}
+
+          {step === 3 && (
+            <button
+              onClick={handleNext}
+              disabled={trainingProgress < 100}
+              className={`px-6 py-2 rounded-lg transition-all font-medium ${
+                trainingProgress < 100
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700 text-white"
+              }`}
             >
               Ver Resultados →
             </button>

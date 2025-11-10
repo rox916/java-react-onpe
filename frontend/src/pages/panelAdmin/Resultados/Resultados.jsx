@@ -35,31 +35,33 @@ const AnimatedCounter = ({ value, duration = 2 }) => {
   return <span>{count.toLocaleString('es-PE')}</span>;
 };
 
-// --- Datos de Ejemplo por Región ---
+// --- Datos de Ejemplo por Región - Elecciones 2026 ---
 const resultadosPorRegion = {
   Nacional: [
-    { nombre: "Fuerza Democrática", votos: 2080123, color: "#DC2626" },
-    { nombre: "Alianza País", votos: 1724102, color: "#2563EB" },
-    { nombre: "Unidad Nacional", votos: 1545987, color: "#EA580C" },
-    { nombre: "Renovación", votos: 1535115, color: "#16A34A" },
-    { nombre: "Partido Popular", votos: 1138220, color: "#DC2626" },
-    { nombre: "Juntos por el Perú", votos: 998765, color: "#2563EB" },
-    { nombre: "Vamos con Todos", votos: 760123, color: "#DC2626" },
-    { nombre: "Avanzada", votos: 759876, color: "#2563EB" },
+    { nombre: "Fuerza Popular", votos: 2350123, color: "#DC2626" },
+    { nombre: "Renovación Popular", votos: 1924102, color: "#2563EB" },
+    { nombre: "Acción Popular", votos: 1625987, color: "#EA580C" },
+    { nombre: "Alianza para el Progreso", votos: 1435115, color: "#16A34A" },
+    { nombre: "Juntos por el Perú", votos: 1238220, color: "#9333EA" },
+    { nombre: "Partido Morado", votos: 1068765, color: "#7C3AED" },
+    { nombre: "Unidad Nacional", votos: 915123, color: "#F59E0B" },
+    { nombre: "Somos Perú", votos: 775876, color: "#64748B" },
     { nombre: "Otros", votos: 2017689, color: "#6B7280" },
   ],
   Lima: [
-    { nombre: "Fuerza Democrática", votos: 880123, color: "#DC2626" },
-    { nombre: "Alianza País", votos: 724102, color: "#2563EB" },
-    { nombre: "Unidad Nacional", votos: 645987, color: "#EA580C" },
-    { nombre: "Renovación", votos: 535115, color: "#16A34A" },
+    { nombre: "Fuerza Popular", votos: 980123, color: "#DC2626" },
+    { nombre: "Renovación Popular", votos: 824102, color: "#2563EB" },
+    { nombre: "Acción Popular", votos: 645987, color: "#EA580C" },
+    { nombre: "Alianza para el Progreso", votos: 535115, color: "#16A34A" },
+    { nombre: "Partido Morado", votos: 445876, color: "#7C3AED" },
     { nombre: "Otros", votos: 914673, color: "#6B7280" },
   ],
   Cusco: [
-    { nombre: "Unidad Nacional", votos: 245987, color: "#EA580C" },
-    { nombre: "Juntos por el Perú", votos: 198765, color: "#2563EB" },
-    { nombre: "Fuerza Democrática", votos: 180123, color: "#DC2626" },
-    { nombre: "Alianza País", votos: 124102, color: "#2563EB" },
+    { nombre: "Juntos por el Perú", votos: 245987, color: "#9333EA" },
+    { nombre: "Unidad Nacional", votos: 198765, color: "#F59E0B" },
+    { nombre: "Fuerza Popular", votos: 180123, color: "#DC2626" },
+    { nombre: "Acción Popular", votos: 154102, color: "#EA580C" },
+    { nombre: "Renovación Popular", votos: 124876, color: "#2563EB" },
     { nombre: "Otros", votos: 251023, color: "#6B7280" },
   ],
 };
