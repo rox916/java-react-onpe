@@ -8,7 +8,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import Votar from "./pages/Votar";
+import Votar from "./pages/votar/Votar";
 import VotoDigital from "./pages/VotoDigital";
 import Resultados from "./pages/Resultados";
 import Informacion from "./pages/Informacion";
