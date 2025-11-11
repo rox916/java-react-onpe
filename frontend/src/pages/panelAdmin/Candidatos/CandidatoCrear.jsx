@@ -6,7 +6,10 @@ import { useEffect, useState } from "react";
 import { X, PlusCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { FormInput, FormSelect } from "../../../components/shared/FormInput";
+<<<<<<< HEAD
 import { DEPARTAMENTOS_PERU } from "../../../constants/electoralConstants";
+=======
+>>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
 
 export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, cargos }) {
   // Estado del formulario con valores iniciales
@@ -17,7 +20,10 @@ export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, carg
     cargo: cargos[0],
     foto: "",
     estado: "Activo",
+<<<<<<< HEAD
     distrito: "",
+=======
+>>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
   });
 
   // Bloquear el scroll del body cuando el modal está abierto
@@ -113,6 +119,7 @@ export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, carg
             options={cargos}
           />
 
+<<<<<<< HEAD
           {formData.cargo === "Congresista" && (
             <FormSelect
               label="Distrito *"
@@ -124,6 +131,8 @@ export default function CandidatoCrear({ isOpen, onClose, onSave, partidos, carg
             />
           )}
 
+=======
+>>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
           <FormSelect
             label="Estado"
             name="estado"
