@@ -201,10 +201,7 @@ export default function Votar() {
           className="text-center mb-8"
         >
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="bg-[#0F172A] p-3 rounded-lg">
-              <Vote className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold text-[#1E3A8A]">Ir a Votar</h1>
+            <h1 className="text-4xl font-bold text-[#1E3A8A]">Realiza tu voto</h1>
           </div>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Ejerce tu derecho al voto de forma segura y transparente

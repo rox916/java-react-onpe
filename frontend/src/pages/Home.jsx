@@ -6,6 +6,7 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import heroImg from "../components/assets/hero1.jpg";
 import { Calendar, Users, Building2, Vote, FileSearch, CheckCircle2 } from "lucide-react";
 
 export default function Home() {
@@ -25,9 +26,17 @@ export default function Home() {
   return (
     <div className="bg-[#F8FAFC] text-gray-800">
       {/* ===== HERO PRINCIPAL ===== */}
-      <section className="relative overflow-hidden bg-[#0F172A] text-white text-center py-32 px-6">
-        {/* Fondo decorativo con gradiente dinámico */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0F172A] via-[#13203d] to-[#0F172A] opacity-95"></div>
+            {/* ===== HERO PRINCIPAL ===== */}
+      <section
+        className="relative overflow-hidden text-white text-center py-32 px-6"
+        style={{
+          backgroundImage: `url(${heroImg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* Capa oscura encima de la imagen para que el texto se lea bien */}
+        <div className="absolute inset-0 bg-[#0F172A]/80" />
 
         <motion.div
           initial="hidden"
@@ -47,7 +56,7 @@ export default function Home() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               to="/votar"
-              className="bg-[#2563EB] hover:bg-[#1E40AF] px-8 py-3 rounded-lg text-lg font-medium transition-all transform hover:scale-[1.02] shadow-lg shadow-blue-900/30 flex items-center gap-2"
+              className="bg-[#2563EB] hover:bg-[#1E40AF] px-8 py-3 rounded-lg text-lg font-medium transition-all transform hover:scale-[1.02] shadow-lg shadow-blue-900/40 flex items-center gap-2"
             >
               <Vote className="w-5 h-5" />
               Ir a Votar Ahora
@@ -61,15 +70,8 @@ export default function Home() {
             </Link>
           </div>
         </motion.div>
-
-        {/* Efecto de fondo animado */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.1 }}
-          transition={{ duration: 3 }}
-          className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,_#2563EB,_transparent_60%)]"
-        />
       </section>
+
 
       {/* ===== INFORMACIÓN DE ELECCIONES ===== */}
       <motion.section
@@ -172,7 +174,7 @@ export default function Home() {
 
             <div className="flex flex-wrap gap-4">
               <Link
-                to="/informacion#voto-digital"
+                to="/voto-digital"
                 className="bg-gradient-to-r from-[#2563EB] to-[#1E40AF] text-white px-8 py-3 rounded-xl font-semibold hover:shadow-xl transition-all transform hover:scale-[1.02] shadow-lg"
               >
                 Conocer voto digital
@@ -253,30 +255,6 @@ export default function Home() {
             </motion.div>
           ))}
         </div>
-      </motion.section>
-
-      {/* ===== CTA FINAL ===== */}
-      <motion.section
-        initial="hidden"
-        whileInView="visible"
-        variants={fadeUp}
-        viewport={{ once: true }}
-        className="bg-[#0F172A] text-white text-center py-20 relative overflow-hidden"
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_#2563EB,_transparent_70%)] opacity-20"></div>
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 relative z-10">
-          Participa en el proceso electoral 2026
-        </h2>
-        <p className="max-w-2xl mx-auto text-blue-100 mb-8 relative z-10">
-          Infórmate sobre las modalidades de votación, conoce los pasos del proceso 
-          y ejerce tu derecho ciudadano con responsabilidad y confianza.
-        </p>
-        <Link
-          to="/informacion#voto-digital"
-          className="bg-[#2563EB] text-white px-8 py-3 rounded-lg font-medium hover:bg-[#1E40AF] transition-all transform hover:scale-[1.02] relative z-10"
-        >
-          Explorar voto digital
-        </Link>
       </motion.section>
     </div>
   );

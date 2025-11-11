@@ -50,7 +50,7 @@ export default function Navbar() {
 
             <li>
               <Link
-                to="/informacion#voto-digital"
+                to="/voto-digital"
                 className="font-medium hover:text-blue-700 transition-colors relative group"
               >
                 Voto Digital
@@ -127,7 +127,7 @@ export default function Navbar() {
 
               <li>
                 <Link
-                  to="/informacion#voto-digital"
+                  to="/voto-digital"
                   onClick={handleLinkClick}
                   className="block font-medium hover:text-blue-700 transition-colors py-2"
                 >
