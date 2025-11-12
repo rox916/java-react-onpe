@@ -29,10 +29,6 @@ export const PARTIDOS_POLITICOS = [
   "Partido Morado",
   "Juntos por el Perú",
   "Libertad Popular",
-<<<<<<< HEAD
-  "Somos Perú",
-  "Renovación Popular",
-=======
   "Partido Cívico Obras",
   "Partido Demócrata Verde",
   "Somos Perú",
@@ -40,7 +36,6 @@ export const PARTIDOS_POLITICOS = [
   "Renovación Popular",
   "Progresemos",
   "Perú Moderno",
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
   "Perú Primero",
   "Un Camino Diferente",
   "Partido Primero La Gente",
@@ -71,7 +66,6 @@ export const CARGOS_ELECTORALES = [
 
 // Departamentos del Perú para selección en formularios
 export const DEPARTAMENTOS_PERU = [
-<<<<<<< HEAD
   "Amazonas",
   "Ancash",
   "Apurímac",
@@ -97,17 +91,6 @@ export const DEPARTAMENTOS_PERU = [
   "Tacna",
   "Tumbes",
   "Ucayali",
-=======
-  "Lima",
-  "Cusco",
-  "Arequipa",
-  "Loreto",
-  "Piura",
-  "La Libertad",
-  "Puno",
-  "Junín",
-  "Ancash",
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
 ];
 
 // Roles de usuario disponibles en el sistema de administración
@@ -134,7 +117,6 @@ export const AMBITOS_REPORTE = [
   "Sistema",
 ];
 
-<<<<<<< HEAD
 // Logos/Símbolos de los partidos políticos
 // Si un partido no tiene logo, se usará un símbolo con iniciales
 export const LOGOS_PARTIDOS = {
@@ -156,5 +138,3 @@ export const LOGOS_PARTIDOS = {
   // Agregar más logos aquí cuando estén disponibles
 };
 
-=======
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54

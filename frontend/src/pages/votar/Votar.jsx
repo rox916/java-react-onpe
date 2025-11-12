@@ -1,8 +1,4 @@
 // src/pages/votar/Votar.jsx
-<<<<<<< HEAD
-=======
-// --- CÓDIGO CORREGIDO Y COMPLETO ---
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
 
 import { useState, useEffect } from "react";
 // eslint-disable-next-line no-unused-vars
@@ -15,20 +11,11 @@ import ProgressCard from "./ProgressCard";
 import Verificacion from "./Verificacion";
 import Categorias from "./Categorias";
 import Candidatos from "./Candidatos";
-<<<<<<< HEAD
-import Confirmacion from "./Confirmacion";
-=======
-import Congresistas from "./Congresistas"; // <-- Importamos el nuevo
-// import Confirmacion from "./Confirmacion"; // <-- Ya no se usa
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
+import Congresistas from "./Congresistas";
 import Final from "./Final";
 
 // Categorías de votación disponibles en el proceso electoral
 const categoriasVotacion = [
-<<<<<<< HEAD
-  
-=======
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
   {
     id: "presidente",
     titulo: "Presidente y Vicepresidentes",
@@ -60,10 +47,6 @@ export default function Votar() {
   const [paso, setPaso] = useState(1);
   const [dni, setDni] = useState("");
   const [categoriaActual, setCategoriaActual] = useState(null);
-<<<<<<< HEAD
-  const [candidatoSeleccionado, setCandidatoSeleccionado] = useState(null);
-=======
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
   const [votosRealizados, setVotosRealizados] = useState({});
   const [error, setError] = useState("");
   const [captchaCode, setCaptchaCode] = useState("");
@@ -80,11 +63,7 @@ export default function Votar() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-<<<<<<< HEAD
   // Cargar candidatos del servicio compartido y actualizar cuando cambien
-=======
-  // Cargar candidatos (sin cambios)
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
   useEffect(() => {
     const cargarCandidatos = () => {
       const datos = getCandidatosParaVotacion();
@@ -108,11 +87,7 @@ export default function Votar() {
     };
   }, []);
 
-<<<<<<< HEAD
   /** Genera código captcha */
-=======
-  /** Genera código captcha (sin cambios) */
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
   const generateCaptcha = () => {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let code = "";
@@ -123,10 +98,6 @@ export default function Votar() {
     setCaptchaInput("");
   };
 
-<<<<<<< HEAD
-=======
-  // verificarDNI (sin cambios)
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
   const verificarDNI = () => {
     setError("");
     if (!dni || dni.length < 8) {
@@ -148,38 +119,17 @@ export default function Votar() {
     }, 1000);
   };
 
-<<<<<<< HEAD
-  const seleccionarCategoria = (categoria) => {
-    setCategoriaActual(categoria);
-    setCandidatoSeleccionado(null);
-    setPaso(3);
-  };
-
-  const seleccionarCandidato = (candidato) => {
-    setCandidatoSeleccionado(candidato);
-    setPaso(4);
-  };
-
-  const confirmarVoto = () => {
-    setTimeout(() => {
-      const nuevosVotos = {
-        ...votosRealizados,
-        [categoriaActual.id]: candidatoSeleccionado,
-=======
-  // seleccionarCategoria (sin cambios)
   const seleccionarCategoria = (categoria) => {
     setCategoriaActual(categoria);
     setPaso(3);
   };
 
-  // confirmarVotoDirecto (la que hicimos antes)
+  // confirmarVotoDirecto
   const confirmarVotoDirecto = (candidatoVotado) => {
-    // (Opcional: puedes añadir un pequeño delay para simular que "se guarda")
     setTimeout(() => {
       const nuevosVotos = {
         ...votosRealizados,
         [categoriaActual.id]: candidatoVotado,
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
       };
       setVotosRealizados(nuevosVotos);
 
@@ -188,46 +138,27 @@ export default function Votar() {
         setPaso(5);
       } else {
         setCategoriaActual(null);
-<<<<<<< HEAD
-        setCandidatoSeleccionado(null);
         setPaso(2);
       }
-    }, 1500);
+    }, 500);
   };
 
-=======
-        setPaso(2);
-      }
-    }, 500); // 500ms de delay
-  };
-
-  // --- ¡AQUÍ ESTÁ LA FUNCIÓN QUE FALTABA! ---
+  // Función para volver a categorías
   const volverACategorias = () => {
     setCategoriaActual(null);
     setPaso(2);
   };
-  // --- FIN DE LA FUNCIÓN QUE FALTABA ---
 
-  // reiniciar (sin cambios)
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
   const reiniciar = () => {
     setPaso(1);
     setDni("");
     setCategoriaActual(null);
-<<<<<<< HEAD
-    setCandidatoSeleccionado(null);
-=======
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
     setVotosRealizados({});
     setError("");
     setCaptchaCode("");
     setCaptchaInput("");
   };
 
-<<<<<<< HEAD
-=======
-  // obtenerCandidatos (sin cambios)
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
   const obtenerCandidatos = () => {
     if (!categoriaActual) return [];
     const categoriaKey =
@@ -247,11 +178,7 @@ export default function Votar() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F8FAFC] to-white py-12 px-6">
       <div className="max-w-4xl mx-auto">
-<<<<<<< HEAD
         {/* Header */}
-=======
-        {/* Header (sin cambios) */}
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
         <motion.div
           initial="hidden"
           animate="visible"
@@ -264,11 +191,7 @@ export default function Votar() {
           </div>
         </motion.div>
 
-<<<<<<< HEAD
         {/* Progreso */}
-=======
-        {/* Progreso (sin cambios) */}
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
         {paso > 1 && paso < 5 && (
           <ProgressCard
             fadeUp={fadeUp}
@@ -289,11 +212,7 @@ export default function Votar() {
               error={error}
               setError={setError}
               captchaCode={captchaCode}
-<<<<<<< HEAD
-              setCaptchaCode={setCaptchaCode}      // 👈 IMPORTANTE
-=======
               setCaptchaCode={setCaptchaCode}
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
               captchaInput={captchaInput}
               setCaptchaInput={setCaptchaInput}
               generateCaptcha={generateCaptcha}
@@ -301,10 +220,6 @@ export default function Votar() {
             />
           )}
 
-<<<<<<< HEAD
-
-=======
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
           {paso === 2 && (
             <Categorias
               key="paso2"
@@ -318,42 +233,12 @@ export default function Votar() {
             />
           )}
 
-<<<<<<< HEAD
-          {paso === 3 && categoriaActual && (
-            <Candidatos
-              key="paso3"
-              fadeUp={fadeUp}
-              categoriaActual={categoriaActual}
-              candidatos={obtenerCandidatos()}   // 👈 aquí pasas el array listo
-              onSeleccionarCandidato={seleccionarCandidato}
-              onVolverCategorias={() => {
-                setCategoriaActual(null);
-                setPaso(2);
-              }}
-            />
-          )}
-
-          {paso === 4 && candidatoSeleccionado && categoriaActual && (
-            <Confirmacion
-              key="paso4"
-              fadeUp={fadeUp}
-              categoriaActual={categoriaActual}
-              candidatoSeleccionado={candidatoSeleccionado}
-              onVolver={() => setPaso(3)}
-              onConfirmar={confirmarVoto}
-            />
-          )}
-
-=======
-          {/* --- CÓDIGO ACTUALIZADO (Paso 3) --- */}
-          {/* (Este es el 'return' que usa la función que acabamos de agregar) */}
-          
           {paso === 3 && categoriaActual && categoriaActual.id === "presidente" && (
             <Candidatos
               key="paso3-presidente"
               categoriaActual={categoriaActual}
               onConfirmarVoto={confirmarVotoDirecto}
-              onVolverCategorias={volverACategorias} // <-- ¡Ahora sí existe!
+              onVolverCategorias={volverACategorias}
             />
           )}
 
@@ -362,7 +247,7 @@ export default function Votar() {
               key="paso3-congreso"
               categoriaActual={categoriaActual}
               onConfirmarVoto={confirmarVotoDirecto}
-              onVolverCategorias={volverACategorias} // <-- ¡Ahora sí existe!
+              onVolverCategorias={volverACategorias}
             />
           )}
 
@@ -382,7 +267,7 @@ export default function Votar() {
                 Este componente aún está en construcción.
               </p>
               <button
-                onClick={volverACategorias} // <-- ¡Ahora sí existe!
+                onClick={volverACategorias}
                 className="mt-6 bg-purple-600 text-white py-2 px-5 rounded-lg"
               >
                 Volver a Categorías
@@ -390,9 +275,6 @@ export default function Votar() {
             </motion.div>
           )}
 
-          {/* PASO 4 (Confirmacion) se queda eliminado, lo cual es correcto */}
-          
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
           {paso === 5 && (
             <Final
               key="paso5"
@@ -406,8 +288,4 @@ export default function Votar() {
       </div>
     </div>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54

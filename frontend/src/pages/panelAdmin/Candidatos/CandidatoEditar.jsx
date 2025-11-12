@@ -6,10 +6,7 @@ import { useEffect, useState } from "react";
 import { X, Save } from "lucide-react";
 import { motion } from "framer-motion";
 import { FormInput, FormSelect } from "../../../components/shared/FormInput";
-<<<<<<< HEAD
 import { DEPARTAMENTOS_PERU } from "../../../constants/electoralConstants";
-=======
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
 
 export default function CandidatoEditar({ isOpen, onClose, onSave, candidate, partidos, cargos }) {
   // Estado del formulario inicializado con los datos del candidato
@@ -113,7 +110,6 @@ export default function CandidatoEditar({ isOpen, onClose, onSave, candidate, pa
             options={cargos}
           />
 
-<<<<<<< HEAD
           {formData.cargo === "Congresista" && (
             <FormSelect
               label="Distrito *"
@@ -125,8 +121,6 @@ export default function CandidatoEditar({ isOpen, onClose, onSave, candidate, pa
             />
           )}
 
-=======
->>>>>>> ae3117f45a5975c13021fb56e4d732bbd4c8ec54
           <FormSelect
             label="Estado"
             name="estado"
