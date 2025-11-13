@@ -5,10 +5,12 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Vote, Crown, Globe, Building2 } from "lucide-react";
 import { getCandidatosParaVotacion } from "../../services/candidatosService";
+// IMPORTACIONES AÑADIDAS
+import { useLocation, Navigate } from "react-router-dom";
 
 // componentes de esta carpeta
 import ProgressCard from "./ProgressCard";
-import Verificacion from "./Verificacion";
+// IMPORTACIÓN ELIMINADA: import Verificacion from "./Verificacion";
 import Categorias from "./Categorias";
 import Candidatos from "./Candidatos";
 import Congresistas from "./Congresistas";
@@ -43,14 +45,33 @@ const categoriasVotacion = [
 ];
 
 export default function Votar() {
-  // Estados del proceso
-  const [paso, setPaso] = useState(1);
-  const [dni, setDni] = useState("");
+  // === INICIO DE CAMBIOS ===
+
+  // 1. Obtener los datos de la página anterior
+  const location = useLocation();
+  const datosVerificacion = location.state;
+
+  // 2. Si NO hay datos (intenta entrar directo), lo botamos a /verificacion
+  if (!datosVerificacion) {
+    // 'replace' evita que el usuario pueda "volver" a esta página rota
+    return <Navigate to="/verificacion" replace />;
+  }
+
+  // 3. Extraer los datos para usarlos
+  const { ciudadano, departamento, provincia, distrito } = datosVerificacion;
+
+  // 4. Ajustar los 'useState' para que empiecen en el paso 2 y con el DNI
+  const [paso, setPaso] = useState(2); // Empezamos en el paso 2 (Categorías)
+  const [dni, setDni] = useState(datosVerificacion.dni || ""); // Usamos el DNI verificado
+  
+  // === FIN DE CAMBIOS ===
+
+  // Estados del proceso (sin los del paso 1)
   const [categoriaActual, setCategoriaActual] = useState(null);
   const [votosRealizados, setVotosRealizados] = useState({});
   const [error, setError] = useState("");
-  const [captchaCode, setCaptchaCode] = useState("");
-  const [captchaInput, setCaptchaInput] = useState("");
+  // const [captchaCode, setCaptchaCode] = useState(""); // Ya no se usa
+  // const [captchaInput, setCaptchaInput] = useState(""); // Ya no se usa
   const [candidatosData, setCandidatosData] = useState({
     presidente: [],
     congresistas: [],
@@ -63,7 +84,7 @@ export default function Votar() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  // Cargar candidatos del servicio compartido y actualizar cuando cambien
+  // Cargar candidatos (se queda igual)
   useEffect(() => {
     const cargarCandidatos = () => {
       const datos = getCandidatosParaVotacion();
@@ -87,37 +108,7 @@ export default function Votar() {
     };
   }, []);
 
-  /** Genera código captcha */
-  const generateCaptcha = () => {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let code = "";
-    for (let i = 0; i < 4; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setCaptchaCode(code);
-    setCaptchaInput("");
-  };
-
-  const verificarDNI = () => {
-    setError("");
-    if (!dni || dni.length < 8) {
-      setError("Por favor, ingrese un DNI válido (8 dígitos)");
-      return;
-    }
-
-    if (!captchaInput || captchaInput.toUpperCase() !== captchaCode) {
-      setError(
-        "El código de verificación no coincide. Por favor, intente nuevamente."
-      );
-      generateCaptcha();
-      return;
-    }
-
-    // Simulación de verificación
-    setTimeout(() => {
-      setPaso(2);
-    }, 1000);
-  };
+  // FUNCIONES 'generateCaptcha' y 'verificarDNI' ELIMINADAS (ya no se necesitan)
 
   const seleccionarCategoria = (categoria) => {
     setCategoriaActual(categoria);
@@ -150,15 +141,20 @@ export default function Votar() {
   };
 
   const reiniciar = () => {
-    setPaso(1);
-    setDni("");
-    setCategoriaActual(null);
-    setVotosRealizados({});
-    setError("");
-    setCaptchaCode("");
-    setCaptchaInput("");
+    // Al reiniciar, lo mandamos a la página de verificación, no al paso 1
+    navigate("/verificacion", { replace: true });
+    
+    // (Lógica original, por si acaso la necesitas)
+    // setPaso(1);
+    // setDni("");
+    // setCategoriaActual(null);
+    // setVotosRealizados({});
+    // setError("");
+    // setCaptchaCode("");
+    // setCaptchaInput("");
   };
 
+  // 'obtenerCandidatos' y 'categoriasPendientes' se quedan igual
   const obtenerCandidatos = () => {
     if (!categoriaActual) return [];
     const categoriaKey =
@@ -178,7 +174,7 @@ export default function Votar() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#F8FAFC] to-white py-12 px-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
+        {/* Header (se queda igual) */}
         <motion.div
           initial="hidden"
           animate="visible"
@@ -191,8 +187,23 @@ export default function Votar() {
           </div>
         </motion.div>
 
+        {/* === NUEVO BLOQUE: DATOS DEL VOTANTE === */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          className="p-4 mb-6 bg-blue-50 border border-blue-200 rounded-lg text-sm"
+        >
+          <p className="font-semibold text-blue-800">
+            Votante: {ciudadano.nombre} {ciudadano.apellidos} ({dni})
+          </p>
+          <p className="text-gray-600">
+            Ubicación: {distrito}, {provincia}, {departamento}
+          </p>
+        </motion.div>
+        
         {/* Progreso */}
-        {paso > 1 && paso < 5 && (
+        {paso < 5 && (
           <ProgressCard
             fadeUp={fadeUp}
             votosRealizados={votosRealizados}
@@ -203,22 +214,8 @@ export default function Votar() {
 
         {/* Contenido principal por paso */}
         <AnimatePresence mode="wait">
-          {paso === 1 && (
-            <Verificacion
-              key="paso1"
-              fadeUp={fadeUp}
-              dni={dni}
-              setDni={setDni}
-              error={error}
-              setError={setError}
-              captchaCode={captchaCode}
-              setCaptchaCode={setCaptchaCode}
-              captchaInput={captchaInput}
-              setCaptchaInput={setCaptchaInput}
-              generateCaptcha={generateCaptcha}
-              verificarDNI={verificarDNI}
-            />
-          )}
+          
+          {/* BLOQUE 'paso === 1' ELIMINADO */}
 
           {paso === 2 && (
             <Categorias
@@ -228,7 +225,8 @@ export default function Votar() {
               votosRealizados={votosRealizados}
               categoriasPendientes={categoriasPendientes}
               onSeleccionarCategoria={seleccionarCategoria}
-              onVolverPaso1={() => setPaso(1)}
+              // 'onVolverPaso1' ya no tiene sentido, puedes quitarlo de 'Categorias.jsx' si quieres
+              // onVolverPaso1={() => setPaso(1)} 
               onIrFinal={() => setPaso(5)}
             />
           )}
@@ -281,7 +279,7 @@ export default function Votar() {
               fadeUp={fadeUp}
               votosRealizados={votosRealizados}
               categorias={categoriasVotacion}
-              onReiniciar={reiniciar}
+              onReiniciar={reiniciar} // Ahora 'reiniciar' te lleva a /verificacion
             />
           )}
         </AnimatePresence>

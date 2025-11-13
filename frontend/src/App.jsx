@@ -9,12 +9,17 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Votar from "./pages/votar/Votar";
-import VotoDigital from "./pages/VotoDigital";
+
+// import VotoDigital from "./pages/VotoDigital"; // <-- YA NO USAMOS ESTE
+
 import Resultados from "./pages/Resultados";
 import Informacion from "./pages/Informacion";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/panelAdmin/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
+
+// === 1. IMPORTAMOS EL COMPONENTE CORRECTO ===
+import Verificacion from "./pages/votar/Verificacion";
 
 /**
  * Layout para las páginas públicas
@@ -52,7 +57,11 @@ function App() {
           <Route path="votar" element={<Votar />} />
           <Route path="resultados" element={<Resultados />} />
           <Route path="informacion" element={<Informacion />} />
-          <Route path="voto-digital" element={<VotoDigital />} />
+          
+          {/* === 2. USAMOS LA RUTA Y EL COMPONENTE CORRECTO === */}
+          {/* <Route path="voto-digital" element={<VotoDigital />} /> */} {/* <-- ESTA ES LA LÍNEA ANTIGUA */}
+          <Route path="verificacion" element={<Verificacion />} /> {/* <-- ESTA ES LA NUEVA LÍNEA */}
+
         </Route>
         
         {/* Página 404 - Debe estar al final para capturar rutas no encontradas */}
