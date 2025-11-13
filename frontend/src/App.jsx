@@ -9,16 +9,15 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Votar from "./pages/votar/Votar";
-
-// import VotoDigital from "./pages/VotoDigital"; // <-- YA NO USAMOS ESTE
-
+// import VotoDigital from "./pages/VotoDigital"; // <-- 1. ASEGÚRATE DE IMPORTAR ESTA
 import Resultados from "./pages/Resultados";
 import Informacion from "./pages/Informacion";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/panelAdmin/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// === 1. IMPORTAMOS EL COMPONENTE CORRECTO ===
+// === 1. IMPORTA AMBOS COMPONENTES ===
+import VotoDigital from "./pages/VotoDigital"; 
 import Verificacion from "./pages/votar/Verificacion";
 
 /**
@@ -40,7 +39,7 @@ function App() {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <ScrollToTop />
       <Routes>
-        {/* Rutas de administración - No incluyen Navbar/Footer público */}
+        {/* Rutas de administración */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route
           path="/admin/*"
@@ -51,20 +50,19 @@ function App() {
           }
         />
 
-        {/* Rutas públicas - Incluyen Navbar y Footer */}
+        {/* Rutas públicas */}
         <Route path="/" element={<PublicLayout />}>
           <Route index element={<Home />} />
           <Route path="votar" element={<Votar />} />
           <Route path="resultados" element={<Resultados />} />
           <Route path="informacion" element={<Informacion />} />
           
-          {/* === 2. USAMOS LA RUTA Y EL COMPONENTE CORRECTO === */}
-          {/* <Route path="voto-digital" element={<VotoDigital />} /> */} {/* <-- ESTA ES LA LÍNEA ANTIGUA */}
-          <Route path="verificacion" element={<Verificacion />} /> {/* <-- ESTA ES LA NUEVA LÍNEA */}
+          {/* === 2. ASEGÚRATE DE TENER AMBAS RUTAS === */}
+          <Route path="voto-digital" element={<VotoDigital />} /> {/* Esta es la que acabamos de agregar de vuelta */}
+          <Route path="verificacion" element={<Verificacion />} /> {/* Esta es la del mapa */}
 
         </Route>
         
-        {/* Página 404 - Debe estar al final para capturar rutas no encontradas */}
         <Route path="*" element={<div>404 - Página no encontrada</div>} />
       </Routes>
     </div>
