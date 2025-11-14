@@ -439,7 +439,7 @@ export default function Congresistas({
                           estaSeleccionado ? '' : 'grayscale group-hover:grayscale-0'
                         }`}
                         onError={(e) => {
-                          e.target.src = `https://api.dicebear.com/8.x/initials/svg?seed=${candidato.nombre}&scale=60&backgroundColor=b6e3f4,c0aede,d1d4f9`;
+                          e.target.style.display = 'none';
                         }}
                       />
                     </div>
@@ -610,7 +610,7 @@ export default function Congresistas({
                   alt={candidatoModal.nombre}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.target.src = `https://api.dicebear.com/8.x/initials/svg?seed=${candidatoModal.nombre}&scale=60&backgroundColor=b6e3f4,c0aede,d1d4f9`;
+                    e.target.style.display = 'none';
                   }}
                 />
               </div>

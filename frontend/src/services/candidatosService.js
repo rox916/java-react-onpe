@@ -18,6 +18,12 @@ import { propuestasPorPartido } from './data/propuestasData';
 // Clave para almacenar candidatos en localStorage
 const CANDIDATOS_STORAGE_KEY = 'candidatos_electorales';
 
+// Crear una copia saneada de los datos iniciales: eliminar referencias a URLs externas
+const sanitizedInitialCandidatos = initialCandidatos.map(c => ({
+  ...c,
+  foto: (typeof c.foto === 'string' && (c.foto.includes('http://') || c.foto.includes('https://') || c.foto.includes('pravatar') || c.foto.includes('dicebear'))) ? '' : c.foto,
+}));
+
 /**
  * Verifica si los datos necesitan actualizarse
  * Compara la cantidad de candidatos y actualiza si es necesario
@@ -43,7 +49,7 @@ const needsUpdate = (storedData) => {
 const initializeData = () => {
   const stored = localStorage.getItem(CANDIDATOS_STORAGE_KEY);
   if (!stored) {
-    localStorage.setItem(CANDIDATOS_STORAGE_KEY, JSON.stringify(initialCandidatos));
+    localStorage.setItem(CANDIDATOS_STORAGE_KEY, JSON.stringify(sanitizedInitialCandidatos));
     return;
   }
   
@@ -51,11 +57,11 @@ const initializeData = () => {
     const storedData = JSON.parse(stored);
     if (needsUpdate(storedData)) {
       // Actualizar con los datos iniciales que tienen todos los campos
-      localStorage.setItem(CANDIDATOS_STORAGE_KEY, JSON.stringify(initialCandidatos));
+      localStorage.setItem(CANDIDATOS_STORAGE_KEY, JSON.stringify(sanitizedInitialCandidatos));
     }
   } catch (e) {
     // Si hay error al parsear, reemplazar con datos iniciales
-    localStorage.setItem(CANDIDATOS_STORAGE_KEY, JSON.stringify(initialCandidatos));
+    localStorage.setItem(CANDIDATOS_STORAGE_KEY, JSON.stringify(sanitizedInitialCandidatos));
   }
 };
 
@@ -66,7 +72,7 @@ const initializeData = () => {
 export const getCandidatos = () => {
   initializeData();
   const data = localStorage.getItem(CANDIDATOS_STORAGE_KEY);
-  return data ? JSON.parse(data) : initialCandidatos;
+  return data ? JSON.parse(data) : sanitizedInitialCandidatos;
 };
 
 /**
@@ -82,8 +88,8 @@ export const saveCandidatos = (candidatos) => {
  * Útil cuando se han actualizado los datos iniciales y se necesita refrescar
  */
 export const forceUpdateCandidatos = () => {
-  localStorage.setItem(CANDIDATOS_STORAGE_KEY, JSON.stringify(initialCandidatos));
-  return initialCandidatos;
+  localStorage.setItem(CANDIDATOS_STORAGE_KEY, JSON.stringify(sanitizedInitialCandidatos));
+  return sanitizedInitialCandidatos;
 };
 
 /**
