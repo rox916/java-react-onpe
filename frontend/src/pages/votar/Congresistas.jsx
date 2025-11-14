@@ -24,7 +24,10 @@ import logoPaisTodos from "../../assets/logos/pais_para_todos.png";
 import logoAhoraNacion from "../../assets/logos/ahora_nacion.png";
 import logoAvanza from "../../assets/logos/avanza_pais.png";
 import logoPrimeroGente from "../../assets/logos/primero_la_gente.png";
-// --- 1. ASEGÚRATE DE TENER ESTAS IMPORTACIONES ---
+
+// --- 3. IMPORTAMOS LAS FOTOS (¡COMPLETO!) ---
+
+// Renovación Popular
 import imgJorgeMontoya from "../../assets/images/jorge_montoya_manrique.jpg";
 import imgJoseCueto from "../../assets/images/jose_cueto_aservi.jpg";
 import imgGladysEchaiz from "../../assets/images/gladys_echaiz.jpg";
@@ -35,7 +38,43 @@ import imgJavierPadilla from "../../assets/images/javier_padilla_romero.jpg";
 import imgMiguelCiccia from "../../assets/images/miguel_ciccia_vasquez.jpg";
 import imgNoeliaHerrera from "../../assets/images/noelia_herrera_medina.jpg";
 import imgMilagrosJauregui from "../../assets/images/milagros_jauregui_de_aguayo.jpg";
-// (Aquí irían las demás importaciones de fotos cuando las agregues)
+/*
+// Fuerza Popular 
+import imgMarthaMoyano from "../../assets/images/martha_moyano_delgado.jpg";
+import imgAlejandroAguinaga from "../../assets/images/alejandro_aguinaga_recuenco.jpg";
+import imgPatriciaJuarez from "../../assets/images/patricia_juarez_gallegos.jpg";
+import imgRosangellaBarbaran from "../../assets/images/rosangella_barbaran_reyes.jpg";
+import imgErnestoBustamante from "../../assets/images/ernesto_bustamante_donayre.jpg";
+import imgArturoAlegria from "../../assets/images/arturo_alegria_garcia.jpg";
+import imgHectorVentura from "../../assets/images/hector_ventura_angel.jpg";
+import imgJuanCarlosLizarzaburu from "../../assets/images/juan_carlos_lizarzaburu.jpg";
+import imgTaniaRamirez from "../../assets/images/tania_ramirez_garcia.jpg";
+import imgCesarRevilla from "../../assets/images/cesar_revilla_villanueva.jpg";
+
+// Alianza Para el Progreso
+import imgLadyCamones from "../../assets/images/lady_camones_soriano.jpg";
+import imgAlejandroSoto from "../../assets/images/alejandro_soto_reyes.jpg";
+import imgLuisValdez from "../../assets/images/luis_valdez_farias.jpg";
+import imgMagalyRuiz from "../../assets/images/magaly_ruiz_rodriguez.jpg";
+import imgRobertoChiabra from "../../assets/images/roberto_chiabra_leon.jpg";
+import imgElvaJulon from "../../assets/images/elva_julon_irigoin.jpg";
+import imgIdelsoGarcia from "../../assets/images/idelso_garcia_correa.jpg";
+import imgMariaAcuna from "../../assets/images/maria_acuna_peralta.jpg";
+import imgRosioTorres from "../../assets/images/rosio_torres_salinas.jpg";
+import imgEduardoSalhuana from "../../assets/images/eduardo_salhuana_cavides.jpg";
+
+// Avanza País
+import imgAdrianaTudela from "../../assets/images/adriana_tudela_gutierrez.jpg";
+import imgAlejandroCavero from "../../assets/images/alejandro_cavero_alva.jpg";
+import imgRosselliAmuruz from "../../assets/images/rosselli_amuruz_dulanto.jpg";
+import imgJoseWilliams from "../../assets/images/jose_williams_zapata.jpg";
+import imgDiegoBazan from "../../assets/images/diego_bazan_calderon.jpg";
+import imgPatriciaChirinos from "../../assets/images/patricia_chirinos_venegas.jpg";
+import imgJuanBurgos from "../../assets/images/juan_burgos_oliveros.jpg";
+import imgDianaGonzales from "../../assets/images/diana_gonzales_delgado.jpg";
+import imgMariaCordova from "../../assets/images/maria_cordova_lobaton.jpg";
+import imgJoseJeri from "../../assets/images/jose_jeri_ore.jpg";
+*/
 
 // --- 4. LISTA DE PARTIDOS (PARA LA VISTA 1) ---
 const partidosData = [
@@ -48,54 +87,55 @@ const partidosData = [
   { id: "p7", nombre: "Primero la Gente", logo: logoPrimeroGente, color: "bg-indigo-600" },
 ];
 
-// --- 5. LISTA DE CANDIDATOS (CON FOTOS REALES DE RP) ---
+// --- 4. LISTA DE CANDIDATOS (¡CORREGIDA!) ---
 const mockCongresistas = [
-  // Renovación Popular
-  { id: 101, nombre: "Jorge Montoya Manrique", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "1", biografia: "Militar retirado...", propuestas: ["..."], foto: imgJorgeMontoya },
-  { id: 102, nombre: "José Cueto Aservi", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "2", biografia: "Militar retirado...", propuestas: ["..."], foto: imgJoseCueto },
-  { id: 103, nombre: "Gladys Echaíz", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "3", biografia: "Ex Fiscal de la Nación...", propuestas: ["..."], foto: imgGladysEchaiz },
-  { id: 104, nombre: "Alejandro Muñante Barrios", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "4", biografia: "Abogado...", propuestas: ["..."], foto: imgAlejandroMunante },
-  { id: 105, nombre: "Norma Yarrow Lumbreras", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "5", biografia: "Administradora...", propuestas: ["..."], foto: imgNormaYarrow },
-  { id: 106, nombre: "María Jáuregui Martínez", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "6", biografia: "Activista social...", propuestas: ["..."], foto: imgMariaJauregui },
-  { id: 107, nombre: "Javier Padilla Romero", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "7", biografia: "Médico...", propuestas: ["..."], foto: imgJavierPadilla },
-  { id: 108, nombre: "Miguel Ciccia Vásquez", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "8", biografia: "Empresario...", propuestas: ["..."], foto: imgMiguelCiccia },
-  { id: 109, nombre: "Noelia Herrera Medina", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "9", biografia: "Docente...", propuestas: ["..."], foto: imgNoeliaHerrera },
-  { id: 110, nombre: "Milagros Jáuregui de Aguayo", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "10", biografia: "Conferencista...", propuestas: ["..."], foto: imgMilagrosJauregui },
+  // Renovación Popular (Con fotos que ya tienes)
+  { id: 101, nombre: "Jorge Montoya Manrique", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "1", biografia: "Militar retirado...", propuestas: ["Leyes más estrictas...", "Fiscalización..."], foto: imgJorgeMontoya },
+  { id: 102, nombre: "José Cueto Aservi", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "2", biografia: "Militar retirado...", propuestas: ["Reforma de las FFAA...", "Lucha contra el terrorismo."], foto: imgJoseCueto },
+  { id: 103, nombre: "Gladys Echaíz", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "3", biografia: "Ex Fiscal de la Nación...", propuestas: ["Autonomía del MP...", "Leyes de transparencia..."], foto: imgGladysEchaiz },
+  { id: 104, nombre: "Alejandro Muñante Barrios", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "4", biografia: "Abogado...", propuestas: ["Defensa de la vida...", "Reducción de burocracia..."], foto: imgAlejandroMunante },
+  { id: 105, nombre: "Norma Yarrow Lumbreras", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "5", biografia: "Administradora...", propuestas: ["Reforma de ley...", "Agua y desagüe..."], foto: imgNormaYarrow },
+  { id: 106, nombre: "María Jáuregui Martínez", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "6", biografia: "Activista social...", propuestas: ["Lucha contra violencia...", "Apoyo a ollas comunes."], foto: imgMariaJauregui },
+  { id: 107, nombre: "Javier Padilla Romero", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "7", biografia: "Médico...", propuestas: ["Gestión hospitalaria.", "Acceso a medicamentos."], foto: imgJavierPadilla },
+  { id: 108, nombre: "Miguel Ciccia Vásquez", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "8", biografia: "Empresario...", propuestas: ["Desarrollo de infra...", "Promoción de la Amazonía."], foto: imgMiguelCiccia },
+  { id: 109, nombre: "Noelia Herrera Medina", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "9", biografia: "Docente...", propuestas: ["Calidad educativa.", "Protección de la infancia."], foto: imgNoeliaHerrera },
+  { id: 110, nombre: "Milagros Jáuregui de Aguayo", partido: "Renovación Popular", logoPartido: logoRenovacion, numero: "10", biografia: "Conferencista...", propuestas: ["Protección de la familia.", "Reforma educativa..."], foto: imgMilagrosJauregui },
+  
   // Fuerza Popular (Sin fotos, usarán placeholder)
-  { id: 201, nombre: "Martha Moyano Delgado", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "1", biografia: "Política experimentada...", propuestas: ["Mano dura...", "Reformas..."], foto: "" },
-  { id: 202, nombre: "Alejandro Aguinaga Recuenco", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "2", biografia: "Médico...", propuestas: ["Hospitales...", "Medicinas..."], foto: "" },
-  { id: 203, nombre: "Patricia Juárez Gallegos", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "3", biografia: "Abogada...", propuestas: ["Más poder...", "Obras..."], foto: "" },
-  { id: 204, nombre: "Rosangella Barbarán Reyes", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "4", biografia: "Joven líder...", propuestas: ["Empleo juvenil...", "Becas..."], foto: "" },
-  { id: 205, nombre: "Ernesto Bustamante Donayre", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "5", biografia: "Científico...", propuestas: ["Min. de Ciencia...", "I+D..."], foto: "" },
-  { id: 206, nombre: "Arturo Alegría García", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "6", biografia: "Politólogo...", propuestas: ["Bicameralidad...", "Burocracia..."], foto: "" },
-  { id: 207, nombre: "Héctor Ventura Ángel", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "7", biografia: "Abogado...", propuestas: ["Contraloría...", "Transparencia..."], foto: "" },
-  { id: 208, nombre: "Juan Carlos Lizarzaburu", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "8", biografia: "Administrador...", propuestas: ["Voto consular...", "Defensa migrantes..."], foto: "" },
-  { id: 209, nombre: "Tania Ramírez García", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "9", biografia: "Obstetra...", propuestas: ["Lucha contra anemia...", "Salud..."], foto: "" },
-  { id: 210, nombre: "César Revilla Villanueva", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "10", biografia: "Economista...", propuestas: ["Impuesto PYMES...", "Reactivación..."], foto: "" },
+  { id: 201, nombre: "Martha Moyano Delgado", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "1", biografia: "Política experimentada...", propuestas: ["..."], foto: "" },
+  { id: 202, nombre: "Alejandro Aguinaga Recuenco", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "2", biografia: "Médico...", propuestas: ["..."], foto: "" },
+  { id: 203, nombre: "Patricia Juárez Gallegos", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "3", biografia: "Abogada...", propuestas: ["..."], foto: "" },
+  { id: 204, nombre: "Rosangella Barbarán Reyes", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "4", biografia: "Joven líder...", propuestas: ["..."], foto: "" },
+  { id: 205, nombre: "Ernesto Bustamante Donayre", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "5", biografia: "Científico...", propuestas: ["..."], foto: "" },
+  { id: 206, nombre: "Arturo Alegría García", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "6", biografia: "Politólogo...", propuestas: ["..."], foto: "" },
+  { id: 207, nombre: "Héctor Ventura Ángel", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "7", biografia: "Abogado...", propuestas: ["..."], foto: "" },
+  { id: 208, nombre: "Juan Carlos Lizarzaburu", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "8", biografia: "Administrador...", propuestas: ["..."], foto: "" },
+  { id: 209, nombre: "Tania Ramírez García", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "9", biografia: "Obstetra...", propuestas: ["..."], foto: "" },
+  { id: 210, nombre: "César Revilla Villanueva", partido: "Fuerza Popular", logoPartido: logoFuerza, numero: "10", biografia: "Economista...", propuestas: ["..."], foto: "" },
 
   // Alianza Para el Progreso (Sin fotos)
-  { id: 301, nombre: "Lady Camones Soriano", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "1", biografia: "Política...", propuestas: ["Presupuesto regiones...", "Lucha corrupción..."], foto: "" },
-  { id: 302, nombre: "Alejandro Soto Reyes", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "2", biografia: "Comunicador...", propuestas: ["Bibliotecas...", "Turismo..."], foto: "" },
-  { id: 303, nombre: "Luis Valdez Farías", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "3", biografia: "Abogado...", propuestas: ["Reforma municipal...", "Transparencia..."], foto: "" },
-  { id: 304, nombre: "Magaly Ruiz Rodríguez", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "4", biografia: "Educadora...", propuestas: ["Tablets...", "Internet rural..."], foto: "" },
-  { id: 305, nombre: "Roberto Chiabra León", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "5", biografia: "Militar retirado...", propuestas: ["Seguridad...", "DINI..."], foto: "" },
-  { id: 306, nombre: "Elva Julon Irigoín", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "6", biografia: "Obstetra...", propuestas: ["Salud primaria...", "Salud mental..."], foto: "" },
-  { id: 307, nombre: "Idelso García Correa", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "7", biografia: "Profesor...", propuestas: ["Colegios rurales...", "Apoyo docentes..."], foto: "" },
-  { id: 308, nombre: "María Acuña Peralta", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "8", biografia: "Empresaria...", propuestas: ["Créditos MYPES...", "Simplificación..."], foto: "" },
-  { id: 309, nombre: "Rosio Torres Salinas", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "9", biografia: "Abogada...", propuestas: ["Minería ilegal...", "Sostenibilidad..."], foto: "" },
-  { id: 310, nombre: "Eduardo Salhuana Cavides", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "10", biografia: "Abogado...", propuestas: ["Infraestructura selva...", "Inversión..."], foto: "" },
+  { id: 301, nombre: "Lady Camones Soriano", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "1", biografia: "Política...", propuestas: ["..."], foto: "" },
+  { id: 302, nombre: "Alejandro Soto Reyes", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "2", biografia: "Comunicador...", propuestas: ["..."], foto: "" },
+  { id: 303, nombre: "Luis Valdez Farías", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "3", biografia: "Abogado...", propuestas: ["..."], foto: "" },
+  { id: 304, nombre: "Magaly Ruiz Rodríguez", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "4", biografia: "Educadora...", propuestas: ["..."], foto: "" },
+  { id: 305, nombre: "Roberto Chiabra León", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "5", biografia: "Militar retirado...", propuestas: ["..."], foto: "" },
+  { id: 306, nombre: "Elva Julon Irigoín", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "6", biografia: "Obstetra...", propuestas: ["..."], foto: "" },
+  { id: 307, nombre: "Idelso García Correa", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "7", biografia: "Profesor...", propuestas: ["..."], foto: "" },
+  { id: 308, nombre: "María Acuña Peralta", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "8", biografia: "Empresaria...", propuestas: ["..."], foto: "" },
+  { id: 309, nombre: "Rosio Torres Salinas", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "9", biografia: "Abogada...", propuestas: ["..."], foto: "" },
+  { id: 310, nombre: "Eduardo Salhuana Cavides", partido: "Alianza Para el Progreso", logoPartido: logoAPP, numero: "10", biografia: "Abogado...", propuestas: ["..."], foto: "" },
 
   // Avanza País (Sin fotos)
-  { id: 401, nombre: "Adriana Tudela Gutiérrez", partido: "Avanza País", logoPartido: logoAvanza, numero: "1", biografia: "Abogada...", propuestas: ["Reducción Estado...", "Burocracia..."], foto: "" },
-  { id: 402, nombre: "Alejandro Cavero Alva", partido: "Avanza País", logoPartido: logoAvanza, numero: "2", biografia: "Politólogo...", propuestas: ["Reforma Congreso...", "Voto voluntario..."], foto: "" },
-  { id: 403, nombre: "Rosselli Amuruz Dulanto", partido: "Avanza País", logoPartido: logoAvanza, numero: "3", biografia: "Administradora...", propuestas: ["Marca Perú...", "Turismo..."], foto: "" },
-  { id: 404, nombre: "José Williams Zapata", partido: "Avanza País", logoPartido: logoAvanza, numero: "4", biografia: "Militar retirado...", propuestas: ["Fortalecer FFAA...", "Lucha terrorismo..."], foto: "" },
-  { id: 405, nombre: "Diego Bazán Calderón", partido: "Avanza País", logoPartido: logoAvanza, numero: "5", biografia: "Abogado...", propuestas: ["Reforma CNM...", "Juicios rápidos..."], foto: "" },
-  { id: 406, nombre: "Patricia Chirinos Venegas", partido: "Avanza País", logoPartido: logoAvanza, numero: "6", biografia: "Política...", propuestas: ["Lucha corrupción...", "Transparencia..."], foto: "" },
-  { id: 407, nombre: "Juan Burgos Oliveros", partido: "Avanza País", logoPartido: logoAvanza, numero: "7", biografia: "Médico...", propuestas: ["Hospitales equipados...", "Salud regiones..."], foto: "" },
-  { id: 408, nombre: "Diana Gonzales Delgado", partido: "Avanza País", logoPartido: logoAvanza, numero: "8", biografia: "Ex-deportista...", propuestas: ["Masificación deporte...", "Apoyo deportistas..."], foto: "" },
-  { id: 409, nombre: "María Córdova Lobatón", partido: "Avanza País", logoPartido: logoAvanza, numero: "9", biografia: "Abogada...", propuestas: ["Igualdad...", "Lucha feminicidio..."], foto: "" },
-  { id: 410, nombre: "José Jerí Oré", partido: "Avanza País", logoPartido: logoAvanza, numero: "10", biografia: "Economista...", propuestas: ["Pensiones justas...", "Libertad elección..."], foto: "" },
+  { id: 401, nombre: "Adriana Tudela Gutiérrez", partido: "Avanza País", logoPartido: logoAvanza, numero: "1", biografia: "Abogada...", propuestas: ["..."], foto: "" },
+  { id: 402, nombre: "Alejandro Cavero Alva", partido: "Avanza País", logoPartido: logoAvanza, numero: "2", biografia: "Politólogo...", propuestas: ["..."], foto: "" },
+  { id: 403, nombre: "Rosselli Amuruz Dulanto", partido: "Avanza País", logoPartido: logoAvanza, numero: "3", biografia: "Administradora...", propuestas: ["..."], foto: "" },
+  { id: 404, nombre: "José Williams Zapata", partido: "Avanza País", logoPartido: logoAvanza, numero: "4", biografia: "Militar retirado...", propuestas: ["..."], foto: "" },
+  { id: 405, nombre: "Diego Bazán Calderón", partido: "Avanza País", logoPartido: logoAvanza, numero: "5", biografia: "Abogado...", propuestas: ["..."], foto: "" },
+  { id: 406, nombre: "Patricia Chirinos Venegas", partido: "Avanza País", logoPartido: logoAvanza, numero: "6", biografia: "Política...", propuestas: ["..."], foto: "" },
+  { id: 407, nombre: "Juan Burgos Oliveros", partido: "Avanza País", logoPartido: logoAvanza, numero: "7", biografia: "Médico...", propuestas: ["..."], foto: "" },
+  { id: 408, nombre: "Diana Gonzales Delgado", partido: "Avanza País", logoPartido: logoAvanza, numero: "8", biografia: "Ex-deportista...", propuestas: ["..."], foto: "" },
+  { id: 409, nombre: "María Córdova Lobatón", partido: "Avanza País", logoPartido: logoAvanza, numero: "9", biografia: "Abogada...", propuestas: ["..."], foto: "" },
+  { id: 410, nombre: "José Jerí Oré", partido: "Avanza País", logoPartido: logoAvanza, numero: "10", biografia: "Economista...", propuestas: ["..."], foto: "" },
   
   // Ahora Nación (Lista Simulada - Sin fotos)
   { id: 501, nombre: "Inés Suárez Velasco", partido: "Ahora Nación", logoPartido: logoAhoraNacion, numero: "1", biografia: "Socióloga...", propuestas: ["..."], foto: "" },
