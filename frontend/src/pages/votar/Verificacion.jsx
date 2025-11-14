@@ -26,6 +26,54 @@ const CIUDADANOS_DB = {
     fechaNacimiento: "1995-07-10",
     sexo: "Masculino",
   },
+  "22222222": {
+    nombre: "Ana",
+    apellidos: "González Torres",
+    fechaNacimiento: "1992-11-20",
+    sexo: "Femenino",
+  },
+  "33333333": {
+    nombre: "Luis",
+    apellidos: "Fernández Vargas",
+    fechaNacimiento: "1987-04-08",
+    sexo: "Masculino",
+  },
+  "44444444": {
+    nombre: "Carmen",
+    apellidos: "Morales Silva",
+    fechaNacimiento: "1993-09-14",
+    sexo: "Femenino",
+  },
+  "55555555": {
+    nombre: "Pedro",
+    apellidos: "Ramírez Díaz",
+    fechaNacimiento: "1989-12-03",
+    sexo: "Masculino",
+  },
+  "66666666": {
+    nombre: "Laura",
+    apellidos: "Martínez Herrera",
+    fechaNacimiento: "1991-06-25",
+    sexo: "Femenino",
+  },
+  "77777777": {
+    nombre: "Roberto",
+    apellidos: "Sánchez Mendoza",
+    fechaNacimiento: "1986-08-17",
+    sexo: "Masculino",
+  },
+  "88888888": {
+    nombre: "Patricia",
+    apellidos: "López Castro",
+    fechaNacimiento: "1994-02-28",
+    sexo: "Femenino",
+  },
+  "99999999": {
+    nombre: "Miguel",
+    apellidos: "Torres Rojas",
+    fechaNacimiento: "1996-10-05",
+    sexo: "Masculino",
+  },
 };
 
 // Departamentos del Perú - Coordenadas ajustadas según tu mapa de referencia
@@ -215,7 +263,9 @@ export default function Verificacion() {
                       <UserCheck className="w-5 h-5 text-gray-400" />
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2 ml-6">Prueba: 12345678, 87654321, 11111111</p>
+                  <p className="text-xs text-gray-500 mt-2 ml-6">
+                    DNIs de prueba: 12345678, 87654321, 11111111, 22222222, 33333333, 44444444, 55555555, 66666666, 77777777, 88888888, 99999999
+                  </p>
                 </div>
 
                 {error && (

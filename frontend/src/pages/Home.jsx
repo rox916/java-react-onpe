@@ -9,6 +9,7 @@ import fotoAlvarez from "../assets/images/carlos_alvarez.jpg";
 import fotoLopezChau from "../assets/images/alfonso_lopez_chau.jpg";
 import fotoButters from "../assets/images/phillip_butters.jpg";
 import fotoPerezTello from "../assets/images/marisol_perez_tello.jpg";
+import fotoJulioChavez from "../assets/images/Julio_Chavez.jpg";
 
 import logoRenovacion from "../assets/logos/renovacion_popular.png";
 import logoFuerza from "../assets/logos/fuerza_popular.png";
@@ -17,9 +18,17 @@ import logoPaisTodos from "../assets/logos/pais_para_todos.png";
 import logoAhoraNacion from "../assets/logos/ahora_nacion.png";
 import logoAvanza from "../assets/logos/avanza_pais.png";
 import logoPrimeroGente from "../assets/logos/primero_la_gente.png";
+import logoAccionPopular from "../assets/logos/accion-popular.png";
 
 export default function Home() {
   const candidatos = [
+    {
+      id: 0,
+      nombre: "Julio Chávez",
+      partido: "ACCIÓN POPULAR",
+      image: fotoJulioChavez,
+      logoPartido: logoAccionPopular 
+    },
     {
       id: 1,
       nombre: "Rafael López Aliaga",

@@ -6,7 +6,74 @@ import CandidatoCrear from "./CandidatoCrear";
 import CandidatoEditar from "./CandidatoEditar";
 import CandidatoEliminar from "./CandidatoEliminar";
 import { getCandidatos, saveCandidatos, forceUpdateCandidatos } from "../../../services/candidatosService";
-import { PARTIDOS_POLITICOS, CARGOS_ELECTORALES, LOGOS_PARTIDOS } from "../../../constants/electoralConstants";
+import { PARTIDOS_POLITICOS, CARGOS_ELECTORALES, LOGOS_PARTIDOS, CANDIDATOS_PRESIDENCIALES } from "../../../constants/electoralConstants";
+
+// Importamos las fotos y logos
+import fotoRLA from "../../../assets/images/rafael_lopez_aliaga.jpg";
+import fotoKeiko from "../../../assets/images/keiko_fujimori.jpg";
+import fotoAcuna from "../../../assets/images/cesar_acuna.jpg";
+import fotoAlvarez from "../../../assets/images/carlos_alvarez.jpg";
+import fotoLopezChau from "../../../assets/images/alfonso_lopez_chau.jpg";
+import fotoButters from "../../../assets/images/phillip_butters.jpg";
+import fotoPerezTello from "../../../assets/images/marisol_perez_tello.jpg";
+import fotoNormaYarrow from "../../../assets/images/norma_yarrow_lumbreras.jpg";
+import fotoJoseCueto from "../../../assets/images/jose_cueto_aservi.jpg";
+import fotoJorgeMontoya from "../../../assets/images/jorge_montoya_manrique.jpg";
+import fotoJulioChavez from "../../../assets/images/Julio_Chavez.jpg";
+
+import logoRenovacion from "../../../assets/logos/renovacion_popular.png";
+import logoFuerza from "../../../assets/logos/fuerza_popular.png";
+import logoAPP from "../../../assets/logos/app.png";
+import logoPaisTodos from "../../../assets/logos/pais_para_todos.png";
+import logoAhoraNacion from "../../../assets/logos/ahora_nacion.png";
+import logoAvanza from "../../../assets/logos/avanza_pais.png";
+import logoPrimeroGente from "../../../assets/logos/primero_la_gente.png";
+import logoAccionPopular from "../../../assets/logos/accion-popular.png";
+
+// Mapa de fotos por nombre del candidato
+const fotosPorNombre = {
+  "Julio Chávez": fotoJulioChavez,
+  "Rafael López Aliaga": fotoRLA,
+  "Keiko Fujimori": fotoKeiko,
+  "César Acuña": fotoAcuna,
+  "Carlos Álvarez": fotoAlvarez,
+  "Alfonso López Chau": fotoLopezChau,
+  "Phillip Butters": fotoButters,
+  "Marisol Pérez Tello": fotoPerezTello,
+  "Norma Yarrow": fotoNormaYarrow,
+  "Norma Yarrow Lumbreras": fotoNormaYarrow,
+  "José Cueto": fotoJoseCueto,
+  "José Cueto Aservi": fotoJoseCueto,
+  "Jorge Montoya": fotoJorgeMontoya,
+  "Jorge Montoya Manrique": fotoJorgeMontoya,
+};
+
+// Mapa de logos por nombre del partido
+const logosPorPartido = {
+  "Acción Popular": logoAccionPopular,
+  "Renovación Popular": logoRenovacion,
+  "Fuerza Popular": logoFuerza,
+  "Alianza para el Progreso": logoAPP,
+  "País para Todos": logoPaisTodos,
+  "Ahora Nación": logoAhoraNacion,
+  "Avanza País": logoAvanza,
+  "Primero la Gente": logoPrimeroGente,
+};
+
+// Función para obtener foto de candidato
+const getFotoCandidato = (candidato) => {
+  // Si ya tiene foto y no es una URL externa, usarla
+  if (candidato.foto && typeof candidato.foto === 'string' && !candidato.foto.includes('http') && !candidato.foto.includes('pravatar') && !candidato.foto.includes('dicebear')) {
+    return candidato.foto;
+  }
+  // Buscar por nombre
+  return fotosPorNombre[candidato.nombre] || null;
+};
+
+// Función para obtener logo de partido
+const getLogoPartido = (partido) => {
+  return logosPorPartido[partido] || LOGOS_PARTIDOS[partido] || null;
+};
 
 const partidos = PARTIDOS_POLITICOS;
 const cargos = CARGOS_ELECTORALES;
@@ -34,7 +101,8 @@ const getPartidoColor = (partido) => {
 // Componente para mostrar el símbolo del partido (logo o iniciales)
 const SimboloPartido = ({ partido }) => {
   const [imageError, setImageError] = useState(false);
-  const logoUrl = LOGOS_PARTIDOS[partido];
+  // Primero intentar con logos locales, luego con LOGOS_PARTIDOS
+  const logoUrl = getLogoPartido(partido) || LOGOS_PARTIDOS[partido];
 
   if (!logoUrl || imageError) {
     return (
@@ -63,15 +131,108 @@ export default function Candidatos() {
 
   // Cargar candidatos del servicio compartido
   useEffect(() => {
-    const candidatosData = getCandidatos();
-    setCandidatos(candidatosData);
+    let candidatosData = getCandidatos();
+    
+    // Si no hay candidatos guardados, usar los candidatos presidenciales por defecto
+    if (!candidatosData || candidatosData.length === 0) {
+      const fotosMap = {
+        1: fotoRLA,
+        2: fotoKeiko,
+        3: fotoAcuna,
+        4: fotoAlvarez,
+        6: fotoLopezChau,
+        7: fotoButters,
+        8: fotoPerezTello,
+      };
+
+      const logosMap = {
+        "Renovación Popular": logoRenovacion,
+        "Fuerza Popular": logoFuerza,
+        "Alianza para el Progreso": logoAPP,
+        "País para Todos": logoPaisTodos,
+        "Ahora Nación": logoAhoraNacion,
+        "Avanza País": logoAvanza,
+        "Primero la Gente": logoPrimeroGente,
+      };
+
+      candidatosData = CANDIDATOS_PRESIDENCIALES.map(candidato => ({
+        id: candidato.id,
+        nombre: candidato.nombre,
+        foto: fotosMap[candidato.id] || candidato.foto,
+        partidoPolitico: candidato.partido,
+        cargo: "Presidente",
+        numeroLista: candidato.numero,
+        estado: "Activo",
+        logoPartido: logosMap[candidato.partido],
+        vicepresidentes: candidato.vicepresidentes,
+        propuestas: candidato.propuestas,
+        biografia: candidato.biografia,
+      }));
+      saveCandidatos(candidatosData);
+    }
+    
+    // Asegurar que todos los candidatos tengan sus fotos y logos correctos
+    const candidatosConFotos = candidatosData.map(candidato => ({
+      ...candidato,
+      foto: getFotoCandidato(candidato) || candidato.foto || "",
+      logoPartido: getLogoPartido(candidato.partidoPolitico) || candidato.logoPartido || null,
+    }));
+    
+    setCandidatos(candidatosConFotos);
   }, []);
 
   // Función para actualizar datos si es necesario
   const handleRefreshData = () => {
     const updated = forceUpdateCandidatos();
-    setCandidatos(updated);
+    // Asegurar que todos los candidatos tengan sus fotos y logos correctos
+    const candidatosConFotos = updated.map(candidato => ({
+      ...candidato,
+      foto: getFotoCandidato(candidato) || candidato.foto || "",
+      logoPartido: getLogoPartido(candidato.partidoPolitico) || candidato.logoPartido || null,
+    }));
+    setCandidatos(candidatosConFotos);
     alert("Datos actualizados correctamente. Los congresistas ahora muestran su distrito.");
+  };
+
+  // Función para cargar candidatos presidenciales
+  const handleLoadPresidenciales = () => {
+    const fotosMap = {
+      1: fotoRLA,
+      2: fotoKeiko,
+      3: fotoAcuna,
+      4: fotoAlvarez,
+      6: fotoLopezChau,
+      7: fotoButters,
+      8: fotoPerezTello,
+    };
+
+    const logosMap = {
+      "Renovación Popular": logoRenovacion,
+      "Fuerza Popular": logoFuerza,
+      "Alianza para el Progreso": logoAPP,
+      "País para Todos": logoPaisTodos,
+      "Ahora Nación": logoAhoraNacion,
+      "Avanza País": logoAvanza,
+      "Primero la Gente": logoPrimeroGente,
+    };
+
+    const candidatosPresidenciales = CANDIDATOS_PRESIDENCIALES.map(candidato => ({
+      id: candidato.id,
+      nombre: candidato.nombre,
+      foto: fotosMap[candidato.id] || candidato.foto,
+      partidoPolitico: candidato.partido,
+      cargo: "Presidente",
+      numeroLista: candidato.numero,
+      estado: "Activo",
+      logoPartido: logosMap[candidato.partido],
+      vicepresidentes: candidato.vicepresidentes,
+      propuestas: candidato.propuestas,
+      biografia: candidato.biografia,
+    }));
+    
+    setCandidatos(candidatosPresidenciales);
+    saveCandidatos(candidatosPresidenciales);
+    alert("Candidatos presidenciales cargados correctamente con sus fotos.");
   };
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -88,7 +249,14 @@ export default function Candidatos() {
       const matchesSearch =
         c.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.partidoPolitico.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCargo = filterCargo === "Todos" || c.cargo === filterCargo;
+      
+      // Agrupar Primer Vicepresidente y Segundo Vicepresidente bajo "Vicepresidente"
+      let cargoNormalizado = c.cargo;
+      if (c.cargo === "Primer Vicepresidente" || c.cargo === "Segundo Vicepresidente") {
+        cargoNormalizado = "Vicepresidente";
+      }
+      
+      const matchesCargo = filterCargo === "Todos" || cargoNormalizado === filterCargo;
       return matchesSearch && matchesCargo;
     });
   }, [candidatos, searchTerm, filterCargo]);
@@ -133,6 +301,13 @@ export default function Candidatos() {
             title="Actualizar datos con distritos"
           >
             <Search className="w-5 h-5" /> Actualizar Datos
+          </button>
+          <button
+            onClick={handleLoadPresidenciales}
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md"
+            title="Cargar candidatos presidenciales"
+          >
+            <Plus className="w-5 h-5" /> Cargar Presidenciales
           </button>
           <button
             onClick={() => setModalCreate(true)}
@@ -264,11 +439,39 @@ export default function Candidatos() {
                 <div className="col-span-2">
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <img
-                        src={candidato.foto || `https://i.pravatar.cc/150?img=${candidato.id}`}
-                        alt={candidato.nombre}
-                        className="w-14 h-14 rounded-lg object-cover border-2 border-gray-200 shadow-sm"
-                      />
+                      {(() => {
+                        const foto = getFotoCandidato(candidato);
+                        const logo = getLogoPartido(candidato.partidoPolitico);
+                        
+                        return foto ? (
+                          <>
+                            <img
+                              src={foto}
+                              alt={candidato.nombre}
+                              className="w-14 h-14 rounded-lg object-cover border-2 border-gray-200 shadow-sm"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                            {logo && (
+                              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white border-2 border-gray-200 shadow-md overflow-hidden">
+                                <img
+                                  src={logo}
+                                  alt={`Logo ${candidato.partidoPolitico}`}
+                                  className="w-full h-full object-contain p-0.5"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="w-14 h-14 rounded-lg flex items-center justify-center border-2 border-gray-200 shadow-sm bg-gray-100">
+                            <span className="text-sm font-bold text-gray-700">{getPartidoSimbolo(candidato.partidoPolitico)}</span>
+                          </div>
+                        );
+                      })()}
                       <div className="absolute -bottom-1 -right-1 p-1 bg-white rounded-full shadow-md">
                         <UserSquare2 className="w-3 h-3 text-blue-600" />
                       </div>
