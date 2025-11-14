@@ -92,12 +92,16 @@ export default function Confirmacion({
             <div className="flex items-center gap-6 mb-4">
               <div className="relative">
                 <img
-                  src={
-                    candidatoSeleccionado.foto ||
-                    `https://i.pravatar.cc/150?img=${candidatoSeleccionado.id}`
-                  }
+                  src={candidatoSeleccionado.foto || candidatoSeleccionado.logoPartido || ''}
                   alt={candidatoSeleccionado.nombre}
                   className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-xl"
+                  onError={(e) => {
+                    if (candidatoSeleccionado.logoPartido && e.target.src !== candidatoSeleccionado.logoPartido) {
+                      e.target.src = candidatoSeleccionado.logoPartido;
+                    } else {
+                      e.target.style.display = 'none';
+                    }
+                  }}
                 />
                 <div className="absolute -top-2 -right-2 bg-[#2563EB] text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-lg">
                   {candidatoSeleccionado.numero}

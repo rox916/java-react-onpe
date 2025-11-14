@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Vote, Crown, Globe, Building2 } from "lucide-react";
 import { getCandidatosParaVotacion } from "../../services/candidatosService";
 // IMPORTACIONES AÑADIDAS
-import { useLocation, Navigate } from "react-router-dom";
+import { useLocation, Navigate, useNavigate } from "react-router-dom";
 
 // componentes de esta carpeta
 import ProgressCard from "./ProgressCard";
@@ -49,6 +49,7 @@ export default function Votar() {
 
   // 1. Obtener los datos de la página anterior
   const location = useLocation();
+  const navigate = useNavigate();
   const datosVerificacion = location.state;
 
   // 2. Si NO hay datos (intenta entrar directo), lo botamos a /verificacion

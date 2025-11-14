@@ -20,6 +20,7 @@ import fotoAlvarez from "../../assets/images/carlos_alvarez.jpg";
 import fotoLopezChau from "../../assets/images/alfonso_lopez_chau.jpg";
 import fotoButters from "../../assets/images/phillip_butters.jpg";
 import fotoPerezTello from "../../assets/images/marisol_perez_tello.jpg";
+import fotoJulioChavez from "../../assets/images/Julio_Chavez.jpg";
 
 import logoRenovacion from "../../assets/logos/renovacion_popular.png";
 import logoFuerza from "../../assets/logos/fuerza_popular.png";
@@ -28,6 +29,7 @@ import logoPaisTodos from "../../assets/logos/pais_para_todos.png";
 import logoAhoraNacion from "../../assets/logos/ahora_nacion.png";
 import logoAvanza from "../../assets/logos/avanza_pais.png";
 import logoPrimeroGente from "../../assets/logos/primero_la_gente.png";
+import logoAccionPopular from "../../assets/logos/accion-popular.png";
 
 
 export default function Candidatos({
@@ -39,8 +41,29 @@ export default function Candidatos({
   // Lista de candidatos
   const candidatos = [
     {
-      id: 1,
+      id: 0,
       numero: "01",
+      nombre: "Julio Chávez",
+      foto: fotoJulioChavez,
+      partido: "Acción Popular",
+      logoPartido: logoAccionPopular,
+      vicepresidentes: [
+        "María del Carmen Alva (1ra VP)",
+        "Por confirmarse (2da VP)",
+      ],
+      propuestas: [
+        "Democracia participativa",
+        "Reforma del Estado",
+        "Desarrollo sostenible",
+        "Lucha contra la corrupción",
+        "Inclusión social",
+      ],
+      biografia:
+        "Julio Chávez es un político peruano miembro de Acción Popular. Su candidatura se enfoca en la renovación democrática y el fortalecimiento de las instituciones del Estado.",
+    },
+    {
+      id: 1,
+      numero: "02",
       nombre: "Rafael López Aliaga",
       foto: fotoRLA,
       partido: "Renovación Popular",
@@ -61,7 +84,7 @@ export default function Candidatos({
     },
     {
       id: 2,
-      numero: "02",
+      numero: "03",
       nombre: "Keiko Fujimori",
       foto: fotoKeiko,
       partido: "Fuerza Popular",
@@ -82,7 +105,7 @@ export default function Candidatos({
     },
     {
       id: 3,
-      numero: "03",
+      numero: "04",
       nombre: "César Acuña",
       foto: fotoAcuna,
       partido: "Alianza Para el Progreso (APP)",
@@ -101,7 +124,7 @@ export default function Candidatos({
     },
     {
       id: 4,
-      numero: "04",
+      numero: "05",
       nombre: "Carlos Álvarez",
       foto: fotoAlvarez,
       partido: "País para Todos",
@@ -117,7 +140,7 @@ export default function Candidatos({
     },
     {
       id: 6,
-      numero: "06",
+      numero: "07",
       nombre: "Alfonso López Chau",
       foto: fotoLopezChau,
       partido: "Ahora Nación",
@@ -133,7 +156,7 @@ export default function Candidatos({
     },
     {
       id: 7,
-      numero: "07",
+      numero: "08",
       nombre: "Phillip Butters",
       foto: fotoButters,
       partido: "Avanza País",
@@ -149,7 +172,7 @@ export default function Candidatos({
     },
     {
       id: 8,
-      numero: "08",
+      numero: "09",
       nombre: "Marisol Pérez Tello",
       foto: fotoPerezTello,
       partido: "Primero la Gente",
@@ -265,7 +288,12 @@ export default function Candidatos({
                   alt={candidato.nombre}
                   className="w-full h-full object-cover group-hover:scale-110 transition-all duration-300 grayscale group-hover:grayscale-0"
                   onError={(e) => {
-                    e.target.src = `https://i.pravatar.cc/150?u=${candidato.id}`;
+                    // Si la foto falla, intentar usar el logo del partido como alternativa; si no, ocultar la imagen
+                    if (candidato.logoPartido) {
+                      e.target.src = candidato.logoPartido;
+                    } else {
+                      e.target.style.display = 'none';
+                    }
                   }}
                 />
               </div>
