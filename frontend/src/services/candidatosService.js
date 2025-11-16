@@ -14,6 +14,7 @@
 
 import { initialCandidatos } from './data/candidatosData';
 import { propuestasPorPartido } from './data/propuestasData';
+import { fetchAPI, API_ENDPOINTS } from "../config/apiConfig";
 
 // Clave para almacenar candidatos en localStorage
 const CANDIDATOS_STORAGE_KEY = 'candidatos_electorales';
@@ -109,60 +110,80 @@ export const getCandidatosPorCargo = (cargo) => {
  */
 export const getCandidatosParaVotacion = () => {
   const candidatos = getCandidatos();
+  console.log("=== getCandidatosParaVotacion: Raw candidatos ===", candidatos);
+
   // Filtrar solo candidatos activos para mostrar en votación
   const activos = candidatos.filter(c => c.estado === "Activo");
+  console.log("=== Candidatos activos ===", activos);
 
   // Agrupar presidentes con sus vicepresidentes correspondientes
-  // Los vicepresidentes se agrupan por número de lista y partido político
   const presidentes = activos.filter(c => c.cargo === "Presidente");
-  const presidentesConVice = presidentes.map(pres => {
+  console.log("=== Presidentes sin Vice ===", presidentes);
+
+  const presidentesConVice = presidentes.map((pres, idx) => {
     const vicepresidentes = activos.filter(
       c => (c.cargo === "Primer Vicepresidente" || c.cargo === "Segundo Vicepresidente" || c.cargo === "Vicepresidente") && 
       c.numeroLista === pres.numeroLista && 
       c.partidoPolitico === pres.partidoPolitico
     ).sort((a, b) => {
-      // Ordenar: Primer Vicepresidente primero, luego Segundo Vicepresidente
       if (a.cargo === "Primer Vicepresidente") return -1;
       if (b.cargo === "Primer Vicepresidente") return 1;
       if (a.cargo === "Segundo Vicepresidente") return -1;
       if (b.cargo === "Segundo Vicepresidente") return 1;
       return 0;
     });
-    return {
-      id: pres.id,
-      nombre: pres.nombre,
-      partido: pres.partidoPolitico,
-      numero: pres.numeroLista,
-      foto: pres.foto,
-      vicepresidentes: vicepresidentes.map(v => v.nombre),
-      propuestas: propuestasPorPartido[pres.partidoPolitico] || [],
+
+    const transformado = {
+      id: pres.idCandidato || `fallback-pres-${idx}`,
+      nombre: pres.nombreCompleto,
+      partido: pres.idPartido,
+      numero: 0,
+      foto: pres.foto || "",
+      vicepresidentes: vicepresidentes.map(v => v.nombreCompleto),
+      propuestas: pres.propuestas || [],
     };
+    console.log(`Presidente ${idx}:`, transformado);
+    return transformado;
   });
 
-  // Transformar candidatos a congresistas con formato para votación
+  // Transformar candidatos a congresistas
   const congresistas = activos
     .filter(c => c.cargo === "Congresista")
-    .map(c => ({
-      id: c.id,
-      nombre: c.nombre,
-      partido: c.partidoPolitico,
-      numero: c.numeroLista,
-      foto: c.foto,
-      distrito: c.distrito || "Lima",
-      propuestas: propuestasPorPartido[c.partidoPolitico] || [],
-    }));
+    .map((c, idx) => {
+      const transformado = {
+        id: c.idCandidato || `fallback-cong-${idx}`,
+        nombre: c.nombreCompleto,
+        partido: c.idPartido,
+        numero: 0,
+        foto: c.foto || "",
+        distrito: c.distrito || "Lima",
+        propuestas: c.propuestas || [],
+      };
+      console.log(`Congresista ${idx}:`, transformado);
+      return transformado;
+    });
 
-  // Transformar candidatos a parlamentarios andinos con formato para votación
+  // Transformar candidatos a parlamentarios andinos
   const parlamentoAndino = activos
     .filter(c => c.cargo === "Parlamentario Andino")
-    .map(c => ({
-      id: c.id,
-      nombre: c.nombre,
-      partido: c.partidoPolitico,
-      numero: c.numeroLista,
-      foto: c.foto,
-      propuestas: propuestasPorPartido[c.partidoPolitico] || [],
-    }));
+    .map((c, idx) => {
+      const transformado = {
+        id: c.idCandidato || `fallback-andi-${idx}`,
+        nombre: c.nombreCompleto,
+        partido: c.idPartido,
+        numero: 0,
+        foto: c.foto || "",
+        propuestas: c.propuestas || [],
+      };
+      console.log(`Andino ${idx}:`, transformado);
+      return transformado;
+    });
+
+  console.log("=== RESULTADO FINAL ===", {
+    presidente: presidentesConVice,
+    congresistas,
+    parlamentoAndino
+  });
 
   return {
     presidente: presidentesConVice,
@@ -173,3 +194,89 @@ export const getCandidatosParaVotacion = () => {
 
 // Inicializar datos al cargar el módulo
 initializeData();
+
+/**
+ * Obtiene candidatos desde la API enriquecidos con datos del partido.
+ * El backend ahora devuelve: idCandidato, nombreCompleto, foto, partidoNombre, partidoSimbolo, etc.
+ * Si la API falla, retorna el fallback local.
+ * @returns {Object} Objeto con candidatos organizados por categoría
+ */
+export const fetchCandidatosParaVotacion = async () => {
+  try {
+    console.log("=== fetchCandidatosParaVotacion: Iniciando carga desde API ===");
+    
+    // Llamadas paralelas a los endpoints (el backend devuelve datos enriquecidos)
+    const [presidenciales, congresistas, andinos] = await Promise.all([
+      fetchAPI(API_ENDPOINTS.CANDIDATOS.PRESIDENCIAL),
+      fetchAPI(API_ENDPOINTS.CANDIDATOS.CONGRESISTAS),
+      fetchAPI(API_ENDPOINTS.CANDIDATOS.ANDINOS),
+    ]);
+
+    console.log("Presidenciales (raw):", presidenciales);
+    console.log("Congresistas (raw):", congresistas);
+    console.log("Andinos (raw):", andinos);
+
+    // Transformar presidenciales: el backend ya trae partidoNombre y partidoSimbolo
+    const activosPres = (presidenciales || []).filter(p => (p.estado || 'Activo') === 'Activo');
+    const presTransform = activosPres
+      .filter(pres => pres.cargo === 'Presidente')
+      .map((pres) => ({
+        id: pres.idCandidato,
+        nombre: pres.nombreCompleto || "",
+        partido: pres.idPartido,
+        partidoNombre: pres.partidoNombre || "Sin partido",
+        partidoSimbolo: pres.partidoSimbolo || "",
+        numero: 0,
+        foto: pres.foto || '',
+        propuestas: pres.propuestas || [],
+        biografia: pres.biografia || '',
+      }));
+
+    console.log("Presidentes transformados:", presTransform);
+
+    // Transformar congresistas
+    const congresistasTransform = (congresistas || [])
+      .filter(c => c.estado === 'Activo')
+      .map((c) => ({
+        id: c.idCandidato,
+        nombre: c.nombreCompleto || "",
+        partido: c.idPartido,
+        partidoNombre: c.partidoNombre || "Sin partido",
+        partidoSimbolo: c.partidoSimbolo || "",
+        numero: 0,
+        foto: c.foto || '',
+        distrito: c.distrito || 'N/D',
+        propuestas: c.propuestas || [],
+        biografia: c.biografia || '',
+      }));
+
+    console.log("Congresistas transformados:", congresistasTransform);
+
+    // Transformar parlamentarios andinos
+    const andinosTransform = (andinos || [])
+      .filter(c => c.estado === 'Activo')
+      .map((c) => ({
+        id: c.idCandidato,
+        nombre: c.nombreCompleto || "",
+        partido: c.idPartido,
+        partidoNombre: c.partidoNombre || "Sin partido",
+        partidoSimbolo: c.partidoSimbolo || "",
+        numero: 0,
+        foto: c.foto || '',
+        propuestas: c.propuestas || [],
+        biografia: c.biografia || '',
+      }));
+
+    console.log("Andinos transformados:", andinosTransform);
+
+    return {
+      presidente: presTransform,
+      congresistas: congresistasTransform,
+      parlamentoAndino: andinosTransform,
+    };
+  } catch (error) {
+    console.error('Error en fetchCandidatosParaVotacion:', error);
+    console.warn('Usando fallback local:', error);
+    return getCandidatosParaVotacion();
+  }
+};

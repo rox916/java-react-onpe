@@ -1,14 +1,39 @@
 // src/pages/votar/Final.jsx
 // eslint-disable-next-line no-unused-vars
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Shield } from "lucide-react";
+import { finalizarVoto } from "../../services/votantesService";
 
 export default function Final({
   fadeUp,
   votosRealizados,     // objeto { idCategoria: candidatoSeleccionado }
   categoriasVotacion,  // array con info de las categorías
   onReiniciar,         // función para reiniciar todo el proceso
+  dni,                 // DNI del votante para marcar como votado
 }) {
+  const [finalizando, setFinalizando] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleFinalizar = async () => {
+    if (!dni) {
+      setError("Error: DNI no disponible");
+      return;
+    }
+
+    setFinalizando(true);
+    setError("");
+
+    try {
+      // Marcar al votante como votado en la base de datos
+      await finalizarVoto(dni);
+      // Luego reiniciar el proceso
+      onReiniciar();
+    } catch (err) {
+      setError(err.message || "Error al finalizar el voto");
+      setFinalizando(false);
+    }
+  };
   return (
     <motion.div
       key="paso5"
@@ -92,11 +117,17 @@ export default function Final({
 
       {/* Botón Finalizar / Reiniciar */}
       <div className="flex gap-4 justify-center">
+        {error && (
+          <div className="w-full bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
+        )}
         <button
-          onClick={onReiniciar}
-          className="bg-[#2563EB] hover:bg-[#1E40AF] text-white px-8 py-3 rounded-lg font-semibold transition-all transform hover:scale-[1.02]"
+          onClick={handleFinalizar}
+          disabled={finalizando}
+          className="bg-[#2563EB] hover:bg-[#1E40AF] disabled:bg-gray-400 text-white px-8 py-3 rounded-lg font-semibold transition-all transform hover:scale-[1.02]"
         >
-          Finalizar
+          {finalizando ? "Finalizando..." : "Finalizar"}
         </button>
       </div>
     </motion.div>

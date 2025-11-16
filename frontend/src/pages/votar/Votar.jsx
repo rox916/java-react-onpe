@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { Vote, Crown, Globe, Building2 } from "lucide-react";
-import { getCandidatosParaVotacion } from "../../services/candidatosService";
+import { fetchCandidatosParaVotacion } from "../../services/candidatosService";
+import { registrarVoto } from "../../services/votosService";
 // IMPORTACIONES AÑADIDAS
 import { useLocation, Navigate, useNavigate } from "react-router-dom";
 
@@ -14,6 +15,7 @@ import ProgressCard from "./ProgressCard";
 import Categorias from "./Categorias";
 import Candidatos from "./Candidatos";
 import Congresistas from "./Congresistas";
+import ParliamentoAndino from "./ParliamentoAndino";
 import Final from "./Final";
 
 // Categorías de votación disponibles en el proceso electoral
@@ -50,20 +52,22 @@ export default function Votar() {
   // 1. Obtener los datos de la página anterior
   const location = useLocation();
   const navigate = useNavigate();
-  const datosVerificacion = location.state;
+  const datosVerificacion = location.state || {};
 
-  // 2. Si NO hay datos (intenta entrar directo), lo botamos a /verificacion
-  if (!datosVerificacion) {
-    // 'replace' evita que el usuario pueda "volver" a esta página rota
+  // 2. Si NO hay datos mínimos (intenta entrar directo), lo botamos a /verificacion
+  if (!Object.keys(datosVerificacion).length) {
     return <Navigate to="/verificacion" replace />;
   }
 
-  // 3. Extraer los datos para usarlos
-  const { ciudadano, departamento, provincia, distrito } = datosVerificacion;
+  // 3. Extraer los datos (soportamos ambas formas: 'votante' o 'ciudadano')
+  const votante = datosVerificacion.votante || datosVerificacion.ciudadano || {};
+  const departamento = datosVerificacion.departamento || votante.departamento || "";
+  const provincia = datosVerificacion.provincia || votante.provincia || "";
+  const distrito = datosVerificacion.distrito || votante.distrito || "";
 
   // 4. Ajustar los 'useState' para que empiecen en el paso 2 y con el DNI
   const [paso, setPaso] = useState(2); // Empezamos en el paso 2 (Categorías)
-  const [dni, setDni] = useState(datosVerificacion.dni || ""); // Usamos el DNI verificado
+  const [dni, setDni] = useState(datosVerificacion.dni || votante.dni || ""); // Usamos el DNI verificado
   
   // === FIN DE CAMBIOS ===
 
@@ -85,28 +89,29 @@ export default function Votar() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
-  // Cargar candidatos (se queda igual)
+  // Cargar candidatos UNA SOLA VEZ al montar el componente (cacheo)
   useEffect(() => {
-    const cargarCandidatos = () => {
-      const datos = getCandidatosParaVotacion();
-      setCandidatosData(datos);
-    };
-
-    cargarCandidatos();
-
-    const handleStorageChange = (e) => {
-      if (e.key === "candidatos_electorales" || !e.key) {
-        cargarCandidatos();
+    let mounted = true;
+    const cargarCandidatosAsync = async () => {
+      try {
+        console.log("=== Votar.jsx: Cargando candidatos (primera vez) ===");
+        const datos = await fetchCandidatosParaVotacion();
+        console.log("Datos cargados en Votar.jsx:", datos);
+        if (mounted) {
+          setCandidatosData(datos);
+          console.log("candidatosData actualizado:", datos);
+        }
+      } catch (err) {
+        console.error('Error cargando candidatos:', err);
       }
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    const interval = setInterval(cargarCandidatos, 2000);
+    cargarCandidatosAsync();
 
     return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
+      mounted = false;
     };
+    // [] = Cargar solo una vez al montar el componente
   }, []);
 
   // FUNCIONES 'generateCaptcha' y 'verificarDNI' ELIMINADAS (ya no se necesitan)
@@ -116,23 +121,117 @@ export default function Votar() {
     setPaso(3);
   };
 
+  // Helper: mapear ID de categoría a cargo simplificado
+  const obtenerCargoSimplificado = (categoriaId) => {
+    const cargoMap = {
+      presidente: "Presidente",
+      congresistas: "Congresista",
+      parlamentoAndino: "Parlamentario Andino",
+    };
+    return cargoMap[categoriaId] || "DESCONOCIDO";
+  };
+
   // confirmarVotoDirecto
   const confirmarVotoDirecto = (candidatoVotado) => {
-    setTimeout(() => {
-      const nuevosVotos = {
-        ...votosRealizados,
-        [categoriaActual.id]: candidatoVotado,
-      };
-      setVotosRealizados(nuevosVotos);
+    // Registrar voto en backend, luego actualizar estado local
+    (async () => {
+      try {
+        console.log("=== DEBUG confirmarVotoDirecto ===");
+        console.log("candidatoVotado:", candidatoVotado);
+        console.log("categoriaActual:", categoriaActual);
+        console.log("dni:", dni);
+        // Helper: buscar candidato por ID en los datos cacheados
+        const findCandidateById = (id) => {
+          if (!id) return null;
+          for (const key of Object.keys(candidatosData)) {
+            const arr = candidatosData[key] || [];
+            const f = arr.find((c) => c.id === id);
+            if (f) return f;
+          }
+          return null;
+        };
 
-      const categoriasVotadas = Object.keys(nuevosVotos);
-      if (categoriasVotadas.length === categoriasVotacion.length) {
-        setPaso(5);
-      } else {
-        setCategoriaActual(null);
-        setPaso(2);
+        // Extraer ID del candidato (puede ser null para voto nulo)
+        const idCandidato = candidatoVotado?.id !== undefined ? candidatoVotado.id : (candidatoVotado.idCandidato || null);
+        // Obtener nombre del cargo simplificado según la categoría
+        const cargoVotado = obtenerCargoSimplificado(categoriaActual?.id);
+
+        console.log("idCandidato:", idCandidato, "cargoVotado:", cargoVotado);
+
+        // Registrar el voto (ya sea candidato o nulo)
+        if (idCandidato === null || candidatoVotado?.esNulo) {
+          // Voto nulo - registrar en backend sin candidato
+          console.log("Registrando voto nulo...");
+          await registrarVoto(dni, null, cargoVotado, null, null);
+        } else {
+          // Voto válido
+          // Si vienen votos preferenciales (array), registrarlos uno por uno
+          if (candidatoVotado?.preferenciales && Array.isArray(candidatoVotado.preferenciales)) {
+            console.log("=== Registrando votos preferenciales (Congresistas) ===");
+            console.log("preferenciales:", candidatoVotado.preferenciales);
+            console.log("candidatos disponibles:", candidatoVotado.candidatos);
+            
+            // Iterar sobre cada ID preferencial
+            for (const idPref of candidatoVotado.preferenciales) {
+              try {
+                // Buscar el candidato en el array incluido
+                const candidatoEncontrado = (candidatoVotado.candidatos || []).find(c => c.id === idPref);
+                
+                const nombre = candidatoEncontrado?.nombre || null;
+                const partido = candidatoEncontrado?.partidoNombre || null;
+                
+                console.log(`Registrando preferencial ID: ${idPref}, nombre: ${nombre}, partido: ${partido}`);
+                console.log(`>>> DATOS A ENVIAR: dni=${dni}, idPref=${idPref}, cargoVotado=${cargoVotado}, nombre=${nombre}, partido=${partido}`);
+                
+                await registrarVoto(dni, idPref, cargoVotado, nombre, partido);
+              } catch (err) {
+                console.error('Error registrando preferencial', idPref, err);
+              }
+            }
+          } else {
+            console.log("Registrando voto válido para candidato:", idCandidato);
+            // intentar obtener datos del candidato desde el objeto recibido o del cache
+            const nombreDesdeObj = candidatoVotado?.nombre || candidatoVotado?.nombreCompleto || null;
+            const partidoDesdeObj = candidatoVotado?.partidoNombre || candidatoVotado?.partido || null;
+            let nombre = nombreDesdeObj;
+            let partido = partidoDesdeObj;
+            if (!nombre || !partido) {
+              const cand = findCandidateById(idCandidato);
+              if (cand) {
+                nombre = nombre || cand.nombre || cand.nombre_completo || null;
+                partido = partido || cand.partidoNombre || cand.partido || null;
+              }
+            }
+            await registrarVoto(dni, idCandidato, cargoVotado, nombre, partido);
+          }
+        }
+
+        // Actualizar estado de votos realizados
+        const nuevosVotos = {
+          ...votosRealizados,
+          [categoriaActual.id]: candidatoVotado,
+        };
+        console.log("nuevosVotos:", nuevosVotos);
+        setVotosRealizados(nuevosVotos);
+
+        // Verificar si se votaron todas las categorías
+        const categoriasVotadas = Object.keys(nuevosVotos).length;
+        const categoriasRequeridas = categoriasVotacion.length;
+        console.log(`Categorías votadas: ${categoriasVotadas}/${categoriasRequeridas}`);
+
+        if (categoriasVotadas === categoriasRequeridas) {
+          console.log("Todas las categorías votadas, ir a Final");
+          setPaso(5);
+        } else {
+          console.log("Volviendo a categorías para votar la siguiente");
+          setCategoriaActual(null);
+          setPaso(2);
+        }
+      } catch (err) {
+        console.error('Error registrando voto:', err);
+        setError(err.message || 'No se pudo registrar el voto');
       }
-    }, 500);
+    })();
   };
 
   // Función para volver a categorías
@@ -196,7 +295,7 @@ export default function Votar() {
           className="p-4 mb-6 bg-blue-50 border border-blue-200 rounded-lg text-sm"
         >
           <p className="font-semibold text-blue-800">
-            Votante: {ciudadano.nombre} {ciudadano.apellidos} ({dni})
+            Votante: {votante.nombres || votante.nombre_completo || votante.nombre} {votante.apellidos || ''} ({dni})
           </p>
           <p className="text-gray-600">
             Ubicación: {distrito}, {provincia}, {departamento}
@@ -236,6 +335,7 @@ export default function Votar() {
             <Candidatos
               key="paso3-presidente"
               categoriaActual={categoriaActual}
+              candidatos={obtenerCandidatos()}
               onConfirmarVoto={confirmarVotoDirecto}
               onVolverCategorias={volverACategorias}
             />
@@ -245,33 +345,20 @@ export default function Votar() {
             <Congresistas
               key="paso3-congreso"
               categoriaActual={categoriaActual}
+              candidatos={obtenerCandidatos()}
               onConfirmarVoto={confirmarVotoDirecto}
               onVolverCategorias={volverACategorias}
             />
           )}
 
           {paso === 3 && categoriaActual && categoriaActual.id === "parlamentoAndino" && (
-            <motion.div
+            <ParliamentoAndino
               key="paso3-parlamento"
-              initial="hidden"
-              animate="visible"
-              exit={{ opacity: 0, x: -20 }}
-              variants={fadeUp}
-              className="text-center p-8 bg-white rounded-xl shadow-lg"
-            >
-              <h2 className="text-2xl font-bold text-purple-700">
-                Parlamento Andino
-              </h2>
-              <p className="mt-4 text-gray-600">
-                Este componente aún está en construcción.
-              </p>
-              <button
-                onClick={volverACategorias}
-                className="mt-6 bg-purple-600 text-white py-2 px-5 rounded-lg"
-              >
-                Volver a Categorías
-              </button>
-            </motion.div>
+              categoriaActual={categoriaActual}
+              candidatos={obtenerCandidatos()}
+              onConfirmarVoto={confirmarVotoDirecto}
+              onVolverCategorias={volverACategorias}
+            />
           )}
 
           {paso === 5 && (
@@ -279,8 +366,9 @@ export default function Votar() {
               key="paso5"
               fadeUp={fadeUp}
               votosRealizados={votosRealizados}
-              categorias={categoriasVotacion}
-              onReiniciar={reiniciar} // Ahora 'reiniciar' te lleva a /verificacion
+              categoriasVotacion={categoriasVotacion}
+              onReiniciar={reiniciar}
+              dni={dni}
             />
           )}
         </AnimatePresence>

@@ -1,80 +1,15 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Vote, Shield, AlertCircle, UserCheck, MapPin, ArrowLeft, Check } from "lucide-react";
+import { Vote, Shield, AlertCircle, UserCheck, MapPin, ArrowLeft, Check, Loader } from "lucide-react";
 import { useState } from "react";
 // Importamos useNavigate
 import { useNavigate } from "react-router-dom";
 // Importamos la imagen del mapa
 import mapaPeruImg from "../../assets/images/mapa-peru-3d.png";
-
-// Datos simulados de ciudadanos
-const CIUDADANOS_DB = {
-  "12345678": {
-    nombre: "Juan",
-    apellidos: "García López",
-    fechaNacimiento: "1990-05-15",
-    sexo: "Masculino",
-  },
-  "87654321": {
-    nombre: "María",
-    apellidos: "Rodríguez Martínez",
-    fechaNacimiento: "1988-03-22",
-    sexo: "Femenino",
-  },
-  "11111111": {
-    nombre: "Carlos",
-    apellidos: "Pérez Sánchez",
-    fechaNacimiento: "1995-07-10",
-    sexo: "Masculino",
-  },
-  "22222222": {
-    nombre: "Ana",
-    apellidos: "González Torres",
-    fechaNacimiento: "1992-11-20",
-    sexo: "Femenino",
-  },
-  "33333333": {
-    nombre: "Luis",
-    apellidos: "Fernández Vargas",
-    fechaNacimiento: "1987-04-08",
-    sexo: "Masculino",
-  },
-  "44444444": {
-    nombre: "Carmen",
-    apellidos: "Morales Silva",
-    fechaNacimiento: "1993-09-14",
-    sexo: "Femenino",
-  },
-  "55555555": {
-    nombre: "Pedro",
-    apellidos: "Ramírez Díaz",
-    fechaNacimiento: "1989-12-03",
-    sexo: "Masculino",
-  },
-  "66666666": {
-    nombre: "Laura",
-    apellidos: "Martínez Herrera",
-    fechaNacimiento: "1991-06-25",
-    sexo: "Femenino",
-  },
-  "77777777": {
-    nombre: "Roberto",
-    apellidos: "Sánchez Mendoza",
-    fechaNacimiento: "1986-08-17",
-    sexo: "Masculino",
-  },
-  "88888888": {
-    nombre: "Patricia",
-    apellidos: "López Castro",
-    fechaNacimiento: "1994-02-28",
-    sexo: "Femenino",
-  },
-  "99999999": {
-    nombre: "Miguel",
-    apellidos: "Torres Rojas",
-    fechaNacimiento: "1996-10-05",
-    sexo: "Masculino",
-  },
-};
+// Importamos el servicio de votantes
+import { 
+  consultarVotantePorDni, 
+  actualizarUbicacionVotante
+} from "../../services/votantesService";
 
 // Departamentos del Perú - Coordenadas ajustadas según tu mapa de referencia
 const DEPARTAMENTOS = [
@@ -108,7 +43,8 @@ export default function Verificacion() {
   const [step, setStep] = useState(1);
   const [dni, setDni] = useState("");
   const [error, setError] = useState("");
-  const [ciudadano, setCiudadano] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [votante, setVotante] = useState(null);
   const [captchaCode, setCaptchaCode] = useState("");
   const [captchaInput, setCaptchaInput] = useState("");
   const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState(null);
@@ -133,19 +69,69 @@ export default function Verificacion() {
     setCaptchaInput("");
   };
 
-  const verificarDNI = () => {
+  const verificarDNI = async () => {
     if (!dni || dni.length < 8) {
       setError("Debe ingresar un DNI válido");
       return;
     }
 
-    if (CIUDADANOS_DB[dni]) {
-      setCiudadano(CIUDADANOS_DB[dni]);
-      setError("");
+    setLoading(true);
+    setError("");
+
+    try {
+      const datosVotante = await consultarVotantePorDni(dni);
+      setVotante(datosVotante);
       setStep(2);
-    } else {
-      setError("DNI no encontrado en el sistema");
-      setCiudadano(null);
+    } catch (err) {
+      setError(err.message || "Error al consultar el DNI");
+      setVotante(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const procederActualizarUbicacion = () => {
+    if (!departamentoSeleccionado) {
+      setError("Debe seleccionar un departamento");
+      return;
+    }
+    setError("");
+    // Después de seleccionar departamento, vamos a completar provincia/distrito
+    setStep(5);
+  };
+
+  const procederAVerificacion = async () => {
+    if (!distrito.trim() || !provincia.trim()) {
+      setError("Debe completar todos los campos");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      // Actualizar la ubicación del votante en el backend
+      await actualizarUbicacionVotante(
+        dni,
+        departamentoSeleccionado.nombre,
+        provincia,
+        distrito
+      );
+
+      // Actualizar el estado local del votante con los nuevos datos
+      setVotante(prev => ({
+        ...prev,
+        departamento: departamentoSeleccionado.nombre,
+        provincia: provincia,
+        distrito: distrito
+      }));
+
+      // Volver a la pantalla de datos del votante
+      setStep(2);
+    } catch (err) {
+      setError(err.message || "Error al actualizar la ubicación");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -157,7 +143,8 @@ export default function Verificacion() {
 
     if (captchaInput === captchaCode) {
       setError("");
-      setStep(4);
+      // Si el captcha es correcto, finalizamos la verificación (marcar votante como listo y navegar a votar)
+      completarVerificacion();
     } else {
       setError("El código ingresado es incorrecto");
       setCaptchaInput("");
@@ -165,32 +152,16 @@ export default function Verificacion() {
     }
   };
 
-  const procederARegion = () => {
-    if (!departamentoSeleccionado) {
-      setError("Debe seleccionar un departamento");
-      return;
-    }
-    setError("");
-    setStep(5);
-  };
-
-  // ESTA ES LA FUNCIÓN MODIFICADA
   const completarVerificacion = () => {
-    if (!distrito.trim() || !provincia.trim()) {
-      setError("Debe completar todos los campos");
-      return;
-    }
-    setError("");
-    
-    // En lugar de un alert, navegamos a "/votar"
-    // y pasamos los datos en el 'state'
+    // Solo navega a /votar sin marcar como votado aún
+    // El votante se marcará como votado solo cuando termine todas las votaciones (en Final.jsx)
     navigate('/votar', {
       state: {
         dni: dni,
-        ciudadano: ciudadano, // El objeto completo
-        departamento: departamentoSeleccionado.nombre,
-        provincia: provincia,
-        distrito: distrito
+        votante: votante,
+        departamento: votante.departamento,
+        provincia: votante.provincia,
+        distrito: votante.distrito
       }
     });
   };
@@ -281,17 +252,26 @@ export default function Verificacion() {
 
                 <button
                   onClick={verificarDNI}
-                  disabled={!dni || dni.length < 8}
-                  className="w-full mt-6 bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-800 hover:to-blue-600 text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide shadow-lg"
+                  disabled={!dni || dni.length < 8 || loading}
+                  className="w-full mt-6 bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-800 hover:to-blue-600 text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide shadow-lg flex items-center justify-center gap-2"
                 >
-                  <Shield className="w-5 h-5 inline mr-2" />
-                  CONSULTAR
+                  {loading ? (
+                    <>
+                      <Loader className="w-5 h-5 animate-spin" />
+                      CONSULTANDO...
+                    </>
+                  ) : (
+                    <>
+                      <Shield className="w-5 h-5" />
+                      CONSULTAR
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>
           )}
 
-          {step === 2 && ciudadano && (
+          {step === 2 && votante && (
             <motion.div
               key="step2"
               initial={{ opacity: 0, y: 20 }}
@@ -315,38 +295,64 @@ export default function Verificacion() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Nombres</p>
-                    <p className="text-lg font-bold text-blue-900">{ciudadano.nombre}</p>
+                    <p className="text-lg font-bold text-blue-900">{votante.nombres}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Apellidos</p>
-                    <p className="text-lg font-bold text-blue-900">{ciudadano.apellidos}</p>
+                    <p className="text-lg font-bold text-blue-900">{votante.apellidos}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Fecha de Nacimiento</p>
                     <p className="text-lg font-bold text-blue-900">
-                      {new Date(ciudadano.fechaNacimiento).toLocaleDateString('es-PE')}
+                      {new Date(votante.fechaNac).toLocaleDateString('es-PE')}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Sexo</p>
-                    <p className="text-lg font-bold text-blue-900">{ciudadano.sexo}</p>
+                    <p className="text-lg font-bold text-blue-900">{votante.sexo}</p>
                   </div>
                   <div className="col-span-2">
                     <p className="text-sm text-gray-600">DNI</p>
-                    <p className="text-lg font-bold text-blue-900">{dni}</p>
+                    <p className="text-lg font-bold text-blue-900">{votante.dni}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Departamento</p>
+                    <p className="text-lg font-bold text-blue-900">{votante.departamento || "No especificado"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Provincia</p>
+                    <p className="text-lg font-bold text-blue-900">{votante.provincia || "No especificado"}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-sm text-gray-600">Distrito</p>
+                    <p className="text-lg font-bold text-blue-900">{votante.distrito || "No especificado"}</p>
                   </div>
                 </div>
               </div>
 
-              <button
-                onClick={() => {
-                  generateCaptcha();
-                  setStep(3);
-                }}
-                className="w-full bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-800 hover:to-blue-600 text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 uppercase tracking-wide shadow-lg"
-              >
-                CONTINUAR CON VERIFICACIÓN
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setDepartamentoSeleccionado(null);
+                    setProvincia("");
+                    setDistrito("");
+                    setStep(4);
+                  }}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 uppercase tracking-wide shadow-lg"
+                >
+                  <MapPin className="w-5 h-5 inline mr-2" />
+                  ACTUALIZAR UBICACIÓN
+                </button>
+                <button
+                  onClick={() => {
+                    generateCaptcha();
+                    setStep(3);
+                  }}
+                  className="flex-1 bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-800 hover:to-blue-600 text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 uppercase tracking-wide shadow-lg"
+                >
+                  CONTINUAR CON VERIFICACIÓN
+                </button>
+              </div>
             </motion.div>
           )}
 
@@ -418,9 +424,16 @@ export default function Verificacion() {
                 <button
                   onClick={procederCaptcha}
                   disabled={!captchaInput || captchaInput.length < 4}
-                  className="w-full bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-800 hover:to-blue-600 text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide shadow-lg"
+                  className="w-full bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-800 hover:to-blue-600 text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide shadow-lg flex items-center justify-center gap-2"
                 >
-                  VERIFICAR
+                  {loading ? (
+                    <>
+                      <Loader className="w-5 h-5 animate-spin" />
+                      VERIFICANDO...
+                    </>
+                  ) : (
+                    "VERIFICAR"
+                  )}
                 </button>
               </div>
             </motion.div>
@@ -436,7 +449,7 @@ export default function Verificacion() {
             >
               <div className="flex items-center gap-3 mb-6">
                 <button
-                  onClick={() => setStep(3)}
+                  onClick={() => setStep(2)}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-all"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -571,11 +584,11 @@ export default function Verificacion() {
                 )}
 
                 <button
-                  onClick={procederARegion}
+                  onClick={procederActualizarUbicacion}
                   disabled={!departamentoSeleccionado}
-                  className="w-full bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-800 hover:to-blue-600 text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide shadow-lg"
+                  className="w-full bg-gradient-to-r from-blue-900 to-blue-600 hover:from-blue-800 hover:to-blue-600 text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide shadow-lg flex items-center justify-center gap-2"
                 >
-                  <MapPin className="w-5 h-5 inline mr-2" />
+                  <MapPin className="w-5 h-5" />
                   CONTINUAR
                 </button>
               </div>
@@ -657,12 +670,21 @@ export default function Verificacion() {
                   )}
 
                   <button
-                    onClick={completarVerificacion}
-                    disabled={!provincia.trim() || !distrito.trim()}
-                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide shadow-lg"
+                    onClick={procederAVerificacion}
+                    disabled={!provincia.trim() || !distrito.trim() || loading}
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wide shadow-lg flex items-center justify-center gap-2"
                   >
-                    <Check className="w-5 h-5 inline mr-2" />
-                    COMPLETAR VERIFICACIÓN
+                    {loading ? (
+                      <>
+                        <Loader className="w-5 h-5 animate-spin" />
+                        FINALIZANDO...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-5 h-5" />
+                        COMPLETAR VERIFICACIÓN
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
